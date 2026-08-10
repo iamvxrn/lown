@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Speed motion lines on left -->
+  <line x1="1" y1="11" x2="5" y2="11" stroke="#4a7bc0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="0" y1="16" x2="6" y2="16" stroke="#4a7bc0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="2" y1="21" x2="5" y2="21" stroke="#4a7bc0" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Perfectly symmetrical isometric cube -->
+  <path d="M19 3L28.5 8.5L19 14L9.5 8.5L19 3Z" stroke="#4a7bc0" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M9.5 8.5V20.5L19 26V14L9.5 8.5Z" stroke="#4a7bc0" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M19 14V26L28.5 20.5V8.5L19 14Z" stroke="#4a7bc0" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Bold white >_ symbol centered on the front-left face -->
+  <path d="M12 14.5L14.5 17L12 19.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="15.5" y1="19.5" x2="17.5" y2="19.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+</svg>

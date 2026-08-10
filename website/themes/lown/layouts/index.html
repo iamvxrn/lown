@@ -1,0 +1,127 @@
+{{ define "main" }}
+
+<section class="hero">
+  <span class="hero__eyebrow">lown {{ .Site.Params.version }} — user-space binary manager</span>
+  <h1 class="hero__title">
+    Automated user-space <br>
+    <span class="hero__title-highlight">package compilation & deployment</span>
+  </h1>
+  <p class="hero__sub">
+    Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code>. Fallback shell scripts are supported.
+  </p>
+
+  <div class="terminal-box">
+    <div class="terminal-header">
+      <div class="terminal-dots">
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+      </div>
+      <div class="terminal-tabs">
+        <button class="terminal-tab is-active" id="tab-lown" onclick="switchInstallTab('lown')">Lown</button>
+        <button class="terminal-tab" id="tab-go" onclick="switchInstallTab('go')">Go</button>
+        <button class="terminal-tab" id="tab-git" onclick="switchInstallTab('git')">Git</button>
+      </div>
+    </div>
+    <div class="terminal-body">
+      <div class="terminal-cmd">
+        <span class="terminal-prompt">$</span><span id="hero-install-cmd">lown install gh:iamvxrn/lown</span>
+      </div>
+      <button
+        class="copy-btn"
+        id="hero-install-copy"
+        data-copy="lown install gh:iamvxrn/lown"
+        onclick="copyInstallCmd()"
+      >
+        copy
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <a href="/docs/" class="hero-footer-link">Documentation & Spec →</a>
+  </div>
+
+  <script>
+    var installCmds = {
+      lown: "lown install gh:iamvxrn/lown",
+      go: "go install github.com/iamvxrn/lown@latest",
+      git: "git clone https://github.com/iamvxrn/lown.git && cd lown && go build -o lown main.go"
+    };
+
+    function switchInstallTab(tabKey) {
+      document.querySelectorAll('.terminal-tab').forEach(function(b) { b.classList.remove('is-active'); });
+      var tabBtn = document.getElementById('tab-' + tabKey);
+      if (tabBtn) tabBtn.classList.add('is-active');
+      var cmd = installCmds[tabKey] || installCmds.lown;
+      var span = document.getElementById('hero-install-cmd');
+      var btn = document.getElementById('hero-install-copy');
+      if (span) span.textContent = cmd;
+      if (btn) btn.setAttribute('data-copy', cmd);
+    }
+
+    function copyInstallCmd() {
+      var btn = document.getElementById('hero-install-copy');
+      var cmd = btn.getAttribute('data-copy');
+      navigator.clipboard.writeText(cmd).then(function() {
+        var oldText = btn.textContent;
+        btn.textContent = 'copied!';
+        setTimeout(function() { btn.textContent = oldText; }, 1500);
+      });
+    }
+  </script>
+</section>
+
+<section class="features">
+  <p class="section-label">System Architecture</p>
+  <h2 class="section-heading">Technical Specifications</h2>
+
+  <div class="features__grid">
+    <div class="feature-card">
+      <div class="feature-card__number">01</div>
+      <div class="feature-card__title">User-Space Filesystem Layout</div>
+      <div class="feature-card__body">
+        Operates without administrative privileges. State is contained within <code>~/.lown/</code>: binaries in <code>bin/</code>, source repos in <code>apps/</code>, and configuration in <code>~/.config/lown/config.toml</code>.
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card__number">02</div>
+      <div class="feature-card__title">Build Pipeline Resolution</div>
+      <div class="feature-card__body">
+        Reads <code>lown.toml</code>. Runs <code>go build -o</code> or <code>cargo build --release</code> natively, or executes <code>scripts.install</code> with <code>LOWN_BIN</code> and <code>LOWN_APP_ROOT</code> set in the process environment.
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card__number">03</div>
+      <div class="feature-card__title">Source URI Resolution</div>
+      <div class="feature-card__body">
+        Parses Git URLs (<code>https://</code>, <code>git@</code>), GitHub shorthands (<code>gh:org/repo</code>), or local directories. Resolves custom aliases defined in <code>config.toml</code>.
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card__number">04</div>
+      <div class="feature-card__title">Git Commit Tracking & Synchronization</div>
+      <div class="feature-card__body">
+        <code>lown sync</code> runs <code>git pull</code> across repos in <code>~/.lown/apps/</code> and triggers recompilation if the HEAD commit SHA or package version changes.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3.5rem;">
+    <p class="section-label">Manifest Format</p>
+    <h2 class="section-heading"><code>lown.toml</code> schema</h2>
+    <pre><code>[package]
+name = "script-tool"
+version = "0.1.0"
+executable = "script-tool"
+
+[scripts]
+install = "install.sh"
+uninstall = "uninstall.sh"</code></pre>
+  </div>
+</section>
+
+{{ end }}

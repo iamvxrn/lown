@@ -1,0 +1,23 @@
+baseURL: "https://lown-cli.org/"
+locale: "en-us"
+title: "lown"
+theme: "lown"
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    style: "base16-snazzy"
+    noClasses: false
+
+menu:
+  main:
+    - name: "Docs"
+      url: "/docs/"
+      weight: 1
+
+params:
+  version: "v0.1.0"
+  description: "User-space package manager for Linux and macOS"
+  tagline: "User-space package manager"
