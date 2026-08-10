@@ -1,0 +1,16 @@
+# Binaries
+/lown
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test & Staging cache
+.lown/
+website/public/
+website/resources/_gen/
+.hugo_build.lock
+
+# OS files
+.DS_Store
+Thumbs.db
