@@ -12,7 +12,7 @@
 
 Install Lown with a single command:
 ```bash
-curl -fsSL https://lown-cli.org/install.sh | sh
+curl -fsSL https://lown.pages.dev/install.sh | sh
 ```
 
 Or install any package via Lown:
