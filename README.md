@@ -1,6 +1,8 @@
 # Lown
 
-> **Lown** is a decentralized, user-space package manager and software orchestrator written in Go.
+> **Lown** is a lightweight, user-space binary manager and task orchestrator designed to compile, link, and sync developer tools without `sudo` privileges or centralized repositories.
+
+> **Note:** Lown was created as an engineering experiment in automated toolchain design — a study in what AI agents can build under human direction. The engine, manifest specification, and documentation site were generated under maintainer guidance.
 
 [![Go Version](https://img.shields.io/badge/go-1.26-blue.svg)](https://golang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
