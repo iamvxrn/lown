@@ -23,7 +23,7 @@ lown install gh:iamvxrn/revoq
 ## Features
 
 - **User-Space Isolation**: Installs binaries to `~/.lown/bin/` and sources to `~/.lown/apps/`. Zero `sudo` required.
-- **Smart Native Compilation**: Auto-detects Go and Rust manifests, running `go build` or `cargo build --release` automatically.
+- **Smart Native Compilation**: Auto-detects Go, Rust, and Revoq (C/C++) manifests, running `go build`, `cargo build --release`, or `revoq build` automatically.
 - **Git Synchronization**: `lown sync` pulls updates across all managed applications and triggers automatic recompilation upon commit SHA or version changes.
 
 ## License

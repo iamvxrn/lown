@@ -47,10 +47,10 @@ func (m *Manifest) GetLanguage() string {
 	return strings.ToLower(strings.TrimSpace(m.Package.Language))
 }
 
-// IsNative returns true if language is a supported native language ("go" or "rust").
+// IsNative returns true if language is a supported native language ("go", "rust", "revoq", "c", "cpp").
 func (m *Manifest) IsNative() bool {
 	lang := m.GetLanguage()
-	return lang == "go" || lang == "rust"
+	return lang == "go" || lang == "rust" || lang == "revoq" || lang == "c" || lang == "cpp"
 }
 
 // Validate ensures manifest contains valid metadata and install instructions.
@@ -60,15 +60,15 @@ func (m *Manifest) Validate() error {
 	}
 
 	lang := m.GetLanguage()
-	hasNative := lang == "go" || lang == "rust"
+	hasNative := m.IsNative()
 	hasInstallScript := strings.TrimSpace(m.Scripts.Install) != ""
 
 	if lang != "" && !hasNative {
-		return fmt.Errorf("lown.toml: unsupported language '%s' (supported: go, rust)", m.Package.Language)
+		return fmt.Errorf("lown.toml: unsupported language '%s' (supported: go, rust, revoq, c, cpp)", m.Package.Language)
 	}
 
 	if !hasNative && !hasInstallScript {
-		return fmt.Errorf("lown.toml: package '%s' provides neither a supported language ('go', 'rust') nor an install script", m.Package.Name)
+		return fmt.Errorf("lown.toml: package '%s' provides neither a supported language ('go', 'rust', 'revoq', 'c', 'cpp') nor an install script", m.Package.Name)
 	}
 
 	if m.GetExecutable() == "" {

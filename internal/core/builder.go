@@ -54,6 +54,17 @@ func BuildAndInstall(appRoot string, m *manifest.Manifest) (*BuildResult, error)
 			ExecutableName: execName,
 		}, nil
 
+	case "revoq", "c", "cpp":
+		ui.LogInfo("Building Revoq C/C++ native package '%s'...", m.Package.Name)
+		if err := buildRevoqPackage(appRoot, execName, targetBinPath); err != nil {
+			return nil, fmt.Errorf("Revoq build failed: %w", err)
+		}
+		return &BuildResult{
+			InstallType:     "native-revoq",
+			ExecutablePath: targetBinPath,
+			ExecutableName: execName,
+		}, nil
+
 	default:
 		// Fallback: Custom installation script
 		installScript := strings.TrimSpace(m.Scripts.Install)
@@ -113,6 +124,48 @@ func buildRustPackage(appRoot, execName, targetBinPath string) error {
 
 	if err := os.WriteFile(targetBinPath, data, 0755); err != nil {
 		return fmt.Errorf("failed to copy Rust binary to %s: %w", targetBinPath, err)
+	}
+
+	return nil
+}
+
+// buildRevoqPackage runs `revoq build` in appRoot and copies output binary to targetBinPath
+func buildRevoqPackage(appRoot, execName, targetBinPath string) error {
+	cmd := exec.Command("revoq", "build")
+	cmd.Dir = appRoot
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("revoq build execution error: %s (%w)", strings.TrimSpace(stderr.String()), err)
+	}
+
+	possibleBins := []string{
+		filepath.Join(appRoot, "target", "release", execName),
+		filepath.Join(appRoot, "target", "debug", execName),
+		filepath.Join(appRoot, execName),
+	}
+
+	var compiledBin string
+	for _, path := range possibleBins {
+		if _, err := os.Stat(path); err == nil {
+			compiledBin = path
+			break
+		}
+	}
+
+	if compiledBin == "" {
+		return fmt.Errorf("expected compiled Revoq binary '%s' not found after build", execName)
+	}
+
+	data, err := os.ReadFile(compiledBin)
+	if err != nil {
+		return fmt.Errorf("failed to read compiled Revoq binary: %w", err)
+	}
+
+	if err := os.WriteFile(targetBinPath, data, 0755); err != nil {
+		return fmt.Errorf("failed to copy Revoq binary to %s: %w", targetBinPath, err)
 	}
 
 	return nil

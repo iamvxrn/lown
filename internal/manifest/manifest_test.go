@@ -34,6 +34,26 @@ language = "rust"
 			wantErr: false,
 		},
 		{
+			name: "Valid Revoq Native",
+			toml: `
+[package]
+name = "my-revoq-c-tool"
+version = "0.1.0"
+language = "revoq"
+`,
+			wantErr: false,
+		},
+		{
+			name: "Valid C Native",
+			toml: `
+[package]
+name = "my-c-tool"
+version = "0.1.0"
+language = "c"
+`,
+			wantErr: false,
+		},
+		{
 			name: "Valid Script Fallback",
 			toml: `
 [package]
