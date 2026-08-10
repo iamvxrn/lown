@@ -17,7 +17,7 @@ curl -fsSL https://lown-cli.org/install.sh | sh
 
 Or install any package via Lown:
 ```bash
-lown install gh:iamvxrn/revol
+lown install gh:iamvxrn/revoq
 ```
 
 ## Features
