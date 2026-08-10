@@ -17,7 +17,7 @@ func TestManifestValidation(t *testing.T) {
 			toml: `
 [package]
 name = "my-go-tool"
-version = "1.0.0"
+version = "0.1.0"
 language = "go"
 executable = "my-go-tool"
 `,
@@ -28,7 +28,7 @@ executable = "my-go-tool"
 			toml: `
 [package]
 name = "my-rust-tool"
-version = "0.2.0"
+version = "0.1.0"
 language = "rust"
 `,
 			wantErr: false,
@@ -38,7 +38,7 @@ language = "rust"
 			toml: `
 [package]
 name = "script-tool"
-version = "1.5.0"
+version = "0.1.0"
 
 [scripts]
 install = "install.sh"
@@ -51,7 +51,7 @@ uninstall = "uninstall.sh"
 			toml: `
 [package]
 name = "empty-tool"
-version = "1.0.0"
+version = "0.1.0"
 `,
 			wantErr: true,
 		},
@@ -60,7 +60,7 @@ version = "1.0.0"
 			toml: `
 [package]
 name = "py-tool"
-version = "1.0.0"
+version = "0.1.0"
 language = "python"
 `,
 			wantErr: true,
@@ -69,7 +69,7 @@ language = "python"
 			name: "Missing Package Name",
 			toml: `
 [package]
-version = "1.0.0"
+version = "0.1.0"
 language = "go"
 `,
 			wantErr: true,

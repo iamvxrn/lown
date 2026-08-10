@@ -29,7 +29,7 @@ func TestSmartInstallationGo(t *testing.T) {
 	manifestContent := `
 [package]
 name = "mock-go-tool"
-version = "1.0.0"
+version = "0.1.0"
 language = "go"
 executable = "mock-go-tool"
 `
@@ -75,7 +75,7 @@ func main() {
 		t.Fatalf("inventory check failed: %v (exists: %v)", err, exists)
 	}
 
-	if rec.Version != "1.0.0" || rec.InstallType != "native-go" {
+	if rec.Version != "0.1.0" || rec.InstallType != "native-go" {
 		t.Errorf("unexpected record data: %+v", rec)
 	}
 
@@ -111,7 +111,7 @@ func TestSmartInstallationScriptFallback(t *testing.T) {
 	manifestContent := `
 [package]
 name = "mock-script-tool"
-version = "2.0.0"
+version = "0.1.0"
 
 [scripts]
 install = "install.sh"
@@ -124,7 +124,7 @@ uninstall = "uninstall.sh"
 	installScript := `#!/bin/sh
 echo "Installing script tool to $LOWN_BIN"
 mkdir -p "$LOWN_BIN"
-echo "#!/bin/sh\necho script-tool-v2" > "$LOWN_BIN/mock-script-tool"
+echo "#!/bin/sh\necho script-tool-v0.1.0" > "$LOWN_BIN/mock-script-tool"
 chmod +x "$LOWN_BIN/mock-script-tool"
 `
 	if err := os.WriteFile(filepath.Join(pkgDir, "install.sh"), []byte(installScript), 0755); err != nil {
@@ -170,7 +170,7 @@ func TestSmartInstallationValidationFailure(t *testing.T) {
 	manifestContent := `
 [package]
 name = "invalid-tool"
-version = "1.0.0"
+version = "0.1.0"
 `
 	_ = os.WriteFile(filepath.Join(pkgDir, "lown.toml"), []byte(manifestContent), 0644)
 
