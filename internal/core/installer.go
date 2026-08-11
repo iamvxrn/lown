@@ -59,6 +59,14 @@ func (ins *Installer) Install(rawURI string) error {
 	pkgName := m.Package.Name
 	appDir := path.AppPath(pkgName)
 
+	// Create binary backup before overwriting
+	binName := m.GetExecutable()
+	binPath := filepath.Join(path.BinDir(), binName)
+	bakPath := binPath + ".bak"
+	if _, err := os.Stat(binPath); err == nil {
+		_ = copyFile(binPath, bakPath)
+	}
+
 	// If app already exists, remove existing directory for clean install
 	if _, err := os.Stat(appDir); err == nil {
 		ui.LogInfo("Overwriting existing installation of '%s'...", pkgName)
@@ -77,6 +85,10 @@ func (ins *Installer) Install(rawURI string) error {
 	buildRes, err := BuildAndInstall(appDir, m)
 	if err != nil {
 		_ = os.RemoveAll(appDir) // Clean up target directory on build failure
+		// Restore binary backup if available
+		if _, statErr := os.Stat(bakPath); statErr == nil {
+			_ = copyFile(bakPath, binPath)
+		}
 		return err
 	}
 
@@ -111,9 +123,36 @@ func (ins *Installer) Install(rawURI string) error {
 	return nil
 }
 
+// Rollback restores a binary to its previous backup executable (.bak).
+func (ins *Installer) Rollback(pkgName string) error {
+	rec, exists, _ := ins.store.Get(pkgName)
+	if !exists {
+		return fmt.Errorf("package '%s' is not installed", pkgName)
+	}
+
+	binName := rec.Executable
+	if binName == "" {
+		binName = pkgName
+	}
+
+	binPath := filepath.Join(path.BinDir(), binName)
+	bakPath := binPath + ".bak"
+
+	if _, err := os.Stat(bakPath); os.IsNotExist(err) {
+		return fmt.Errorf("no backup executable found at %s", bakPath)
+	}
+
+	if err := copyFile(bakPath, binPath); err != nil {
+		return fmt.Errorf("failed to restore backup binary: %w", err)
+	}
+
+	ui.LogSuccess("Rolled back binary for package '%s' from %s!", pkgName, bakPath)
+	return nil
+}
+
 // Remove uninstalls a package and cleans up its files.
 func (ins *Installer) Remove(pkgName string) error {
-	rec, exists, err := ins.store.Get(pkgName)
+	rec, exists, _ := ins.store.Get(pkgName)
 	appDir := path.AppPath(pkgName)
 
 	if !exists {
@@ -144,13 +183,8 @@ func (ins *Installer) Remove(pkgName string) error {
 	}
 
 	binPath := filepath.Join(path.BinDir(), binName)
-	if _, err := os.Stat(binPath); err == nil {
-		if err := os.Remove(binPath); err != nil {
-			ui.LogWarning("Failed to remove binary %s: %v", binPath, err)
-		} else {
-			ui.LogInfo("Removed binary %s", binPath)
-		}
-	}
+	_ = os.Remove(binPath)
+	_ = os.Remove(binPath + ".bak")
 
 	// Remove app directory
 	if err := os.RemoveAll(appDir); err != nil {
@@ -204,13 +238,13 @@ func (ins *Installer) Sync(targetPkg string) error {
 		ui.LogInfo("Syncing package '%s'...", rec.Name)
 		pulled, err := git.Pull(appDir)
 		if err != nil {
-			ui.LogWarning("Failed to pull updates for '%s': %v", rec.Name, err)
+			ui.LogWarning("Failed to pull updates for '%s': %v. Continuing sync...", rec.Name, err)
 			continue
 		}
 
 		m, err := manifest.LoadFromDir(appDir)
 		if err != nil {
-			ui.LogWarning("Failed to parse manifest for '%s' after pull: %v", rec.Name, err)
+			ui.LogWarning("Failed to parse manifest for '%s' after pull: %v. Continuing sync...", rec.Name, err)
 			continue
 		}
 
@@ -224,7 +258,7 @@ func (ins *Installer) Sync(targetPkg string) error {
 
 			buildRes, err := BuildAndInstall(appDir, m)
 			if err != nil {
-				ui.LogError("Rebuild failed for '%s': %v", rec.Name, err)
+				ui.LogError("Rebuild failed for '%s': %v. Continuing sync...", rec.Name, err)
 				continue
 			}
 
@@ -284,6 +318,14 @@ func shortenHash(hash string) string {
 		return hash[:7]
 	}
 	return hash
+}
+
+func copyFile(src, dst string) error {
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dst, data, 0755)
 }
 
 func copyDir(src, dst string) error {

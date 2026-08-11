@@ -22,6 +22,7 @@ Usage:
 Commands:
   install, i <uri>    Install package from Git URL, gh:user/repo, alias, or local path
   remove, rm <name>   Remove an installed package and its linked binary
+  rollback <name>     Restore previous backup executable (.bak) for package
   sync, update [name] Pull latest changes and rebuild package(s) if updated
   list, ls            List all installed packages
   doctor              Check Lown installation status and shell environment
@@ -75,6 +76,23 @@ func main() {
 			os.Exit(1)
 		}
 		if err := installer.Remove(pkgName); err != nil {
+			ui.LogError("%v", err)
+			os.Exit(1)
+		}
+
+	case "rollback":
+		if len(os.Args) < 3 {
+			ui.LogError("Missing package name.")
+			fmt.Println("Usage: lown rollback <package-name>")
+			os.Exit(1)
+		}
+		pkgName := os.Args[2]
+		installer, err := core.NewInstaller()
+		if err != nil {
+			ui.LogError("%v", err)
+			os.Exit(1)
+		}
+		if err := installer.Rollback(pkgName); err != nil {
 			ui.LogError("%v", err)
 			os.Exit(1)
 		}
