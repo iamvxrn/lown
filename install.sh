@@ -3,7 +3,7 @@
 #
 #   curl -fsSL https://lown.pages.dev/install.sh | sh
 #
-# Downloads or compiles the latest Lown release binary for your OS/arch,
+# Downloads the latest release binary for your OS/arch,
 # drops it in ~/.lown/bin (or $LOWN_BIN), and runs `lown doctor`.
 
 set -eu
@@ -47,21 +47,57 @@ esac
 
 target="${cpu}-${plat}"
 
-say "installing lown (${target})"
-
 mkdir -p "$BIN_DIR"
 
-# --- check if go is installed for native build fallback -------------------
-if command -v go >/dev/null 2>&1; then
+# --- resolve version -------------------------------------------------------
+if [ "${LOWN_VERSION:-}" != "" ]; then
+  tag="$LOWN_VERSION"
+else
+  say "resolving latest release..."
+  tag="$(fetch "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \
+    | grep '"tag_name"' | head -1 | cut -d'"' -f4 || true)"
+  if [ -z "$tag" ]; then
+    tag="$(fetch "https://api.github.com/repos/$REPO/releases" 2>/dev/null \
+      | grep '"tag_name"' | head -1 | cut -d'"' -f4 || true)"
+  fi
+  if [ -z "$tag" ]; then
+    tag="v0.1.0"
+  fi
+fi
+
+asset="lown-${tag}-${target}.${ext}"
+url="https://github.com/$REPO/releases/download/${tag}/${asset}"
+
+say "installing lown ${tag} (${target})"
+
+installed=0
+tmp="$(mktemp -d 2>/dev/null || mktemp -d -t lown)"
+trap 'rm -rf "$tmp"' EXIT INT TERM
+
+if dl "$url" "$tmp/$asset" 2>/dev/null || dl "https://github.com/$REPO/releases/download/${tag}/lown-${target}.${ext}" "$tmp/$asset" 2>/dev/null; then
+  case "$ext" in
+    tar.gz) tar xzf "$tmp/$asset" -C "$tmp" ;;
+    zip) unzip -q "$tmp/$asset" -d "$tmp" ;;
+  esac
+  src="$(find "$tmp" -type f -name "$binname" | head -1 || true)"
+  if [ -n "$src" ] && [ -f "$src" ]; then
+    install -m 0755 "$src" "$BIN_DIR/$binname" 2>/dev/null || { cp "$src" "$BIN_DIR/$binname" && chmod 0755 "$BIN_DIR/$binname"; }
+    say "installed prebuilt binary to $BIN_DIR/$binname"
+    installed=1
+  fi
+fi
+
+if [ "$installed" = "0" ] && command -v go >/dev/null 2>&1; then
   say "Go compiler detected. Building lown from source..."
-  tmp="$(mktemp -d 2>/dev/null || mktemp -d -t lown)"
-  trap 'rm -rf "$tmp"' EXIT INT TERM
   git clone --depth=1 "https://github.com/$REPO.git" "$tmp/lown" >/dev/null 2>&1 || true
   if [ -d "$tmp/lown" ]; then
     (cd "$tmp/lown" && go build -o "$BIN_DIR/$binname" main.go)
     say "built and installed lown to $BIN_DIR/$binname"
+    installed=1
   fi
 fi
+
+[ "$installed" = "1" ] || [ -f "$BIN_DIR/$binname" ] || die "could not install lown (download failed and Go compiler not found)"
 
 # --- PATH check ------------------------------------------------------------
 case ":$PATH:" in
