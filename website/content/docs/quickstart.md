@@ -11,14 +11,14 @@ next_link: "/docs/manifest/"
 
 Lown installs toolchains directly from GitHub shorthand or custom Git repository URLs.
 
-### 1. Install Revoq, Muth, and Runa
+### 1. Install Revoq, Muth, and Trig
 
 Install the core ecosystem using short aliases:
 
 ```bash
 lown install revoq
 lown install muth
-lown install runa
+lown install trig
 ```
 
 ### 2. Verify Installed Binaries
