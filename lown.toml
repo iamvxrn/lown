@@ -1,0 +1,5 @@
+[package]
+name = "lown"
+version = "0.1.0"
+language = "go"
+executable = "lown"
