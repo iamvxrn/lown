@@ -45,19 +45,19 @@ func LogInfo(format string, a ...interface{}) {
 
 // LogSuccess prints a success message.
 func LogSuccess(format string, a ...interface{}) {
-	prefix := colorize(colorGreen+colorBold, "  ✔")
+	prefix := colorize(colorGreen+colorBold, "  [ok]")
 	fmt.Printf("%s %s\n", prefix, fmt.Sprintf(format, a...))
 }
 
 // LogWarning prints a warning message.
 func LogWarning(format string, a ...interface{}) {
-	prefix := colorize(colorYellow+colorBold, "  ⚠️ ")
+	prefix := colorize(colorYellow+colorBold, "  [warn]")
 	fmt.Printf("%s %s\n", prefix, fmt.Sprintf(format, a...))
 }
 
 // LogError prints an error message.
 func LogError(format string, a ...interface{}) {
-	prefix := colorize(colorRed+colorBold, "  ❌ Error:")
+	prefix := colorize(colorRed+colorBold, "  Error:")
 	fmt.Fprintf(os.Stderr, "%s %s\n", prefix, fmt.Sprintf(format, a...))
 }
 
