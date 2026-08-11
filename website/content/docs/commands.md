@@ -19,9 +19,17 @@ lown install gh:iamvxrn/muth
 lown install ./my-local-tool
 ```
 
+### lown rollback `<name>`
+
+Restores a package binary to its previous backup executable (`.bak`) in `~/.lown/bin/`.
+
+```bash
+lown rollback revoq
+```
+
 ### lown sync `[name]`
 
-Pulls latest upstream commits and re-compiles binaries if changes are detected.
+Pulls latest upstream commits and re-compiles binaries if changes are detected. Continues safely if individual repositories fail.
 
 ```bash
 lown sync
