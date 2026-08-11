@@ -21,3 +21,4 @@ params:
   version: "v0.1.0"
   description: "User-space package manager for Linux and macOS"
   tagline: "User-space package manager"
+disableKinds: ["taxonomy", "term"]

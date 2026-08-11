@@ -1,40 +1,45 @@
 ---
 title: "CLI Command Reference"
+date: 2026-08-11
+prev_title: "Manifest Specification"
+prev_link: "/docs/manifest/"
+next_title: "Engine Architecture"
+next_link: "/docs/architecture/"
 ---
 
-Lown provides subcommands for package installation, updates, removal, and diagnostics.
+## Command Flags & Subcommands
 
-## `lown install <uri>` (Alias: `lown i`)
+### lown install `<uri>`
 
-Installs a package from a Git URL, GitHub shorthand (`gh:user/repo`), custom alias, or local directory path.
-
-```bash
-lown install gh:user/repo
-lown install https://github.com/user/repo.git
-lown install ./my-local-package
-```
-
-## `lown sync [name]` (Alias: `lown update`)
-
-Pulls latest changes from Git for a single package or **all** installed packages. If the package version or commit hash has changed, Lown automatically re-builds or re-executes the installer.
+Installs a package from a Git URL, GitHub shorthand (`gh:user/repo`), short alias (`revoq`, `muth`, `runa`), or local path.
 
 ```bash
-lown sync          # Sync all installed packages
-lown sync my-tool  # Sync specific package
+lown install revoq
+lown install gh:iamvxrn/muth
+lown install ./my-local-tool
 ```
 
-## `lown remove <name>` (Alias: `lown rm`)
+### lown sync `[name]`
 
-Executes `scripts.uninstall` (if present), removes linked binaries from `~/.lown/bin/`, and purges application sources from `~/.lown/apps/`.
+Pulls latest upstream commits and re-compiles binaries if changes are detected.
 
 ```bash
-lown remove my-tool
+lown sync
+lown sync revoq
 ```
 
-## `lown list` (Alias: `lown ls`)
+### lown remove `<name>`
 
-Displays a clean table of installed packages, versions, build types, and installation dates.
+Removes a managed binary from `~/.lown/bin/` and deletes source directory.
 
-## `lown doctor`
+```bash
+lown remove muth
+```
 
-Checks shell environment paths, verifying `~/.lown/bin` is in `$PATH` and reporting directory permissions.
+### lown list
+
+Lists all installed tools, versions, languages, and source paths.
+
+### lown doctor
+
+Runs environment diagnostics (PATH validation, Go/Rust compiler detection).
