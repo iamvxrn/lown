@@ -21,25 +21,32 @@ jobs:
       - name: Build Cross-Platform Artifacts
         run: |
           mkdir -p dist
+          TAG_NAME="${GITHUB_REF_NAME:-v0.1.0}"
+          
           # Linux amd64
-          GOOS=linux GOARCH=amd64 go build -o dist/lown-linux-amd64 main.go
-          tar -czf dist/lown-v0.1.0-x86_64-unknown-linux-gnu.tar.gz -C dist lown-linux-amd64
+          GOOS=linux GOARCH=amd64 go build -o dist/lown main.go
+          tar -czf "dist/lown-${TAG_NAME}-x86_64-unknown-linux-gnu.tar.gz" -C dist lown
+          rm -f dist/lown
           
           # Linux arm64
-          GOOS=linux GOARCH=arm64 go build -o dist/lown-linux-arm64 main.go
-          tar -czf dist/lown-v0.1.0-aarch64-unknown-linux-gnu.tar.gz -C dist lown-linux-arm64
+          GOOS=linux GOARCH=arm64 go build -o dist/lown main.go
+          tar -czf "dist/lown-${TAG_NAME}-aarch64-unknown-linux-gnu.tar.gz" -C dist lown
+          rm -f dist/lown
           
           # Darwin arm64
-          GOOS=darwin GOARCH=arm64 go build -o dist/lown-darwin-arm64 main.go
-          tar -czf dist/lown-v0.1.0-aarch64-apple-darwin.tar.gz -C dist lown-darwin-arm64
+          GOOS=darwin GOARCH=arm64 go build -o dist/lown main.go
+          tar -czf "dist/lown-${TAG_NAME}-aarch64-apple-darwin.tar.gz" -C dist lown
+          rm -f dist/lown
           
           # Darwin amd64
-          GOOS=darwin GOARCH=amd64 go build -o dist/lown-darwin-amd64 main.go
-          tar -czf dist/lown-v0.1.0-x86_64-apple-darwin.tar.gz -C dist lown-darwin-amd64
+          GOOS=darwin GOARCH=amd64 go build -o dist/lown main.go
+          tar -czf "dist/lown-${TAG_NAME}-x86_64-apple-darwin.tar.gz" -C dist lown
+          rm -f dist/lown
           
           # Windows amd64
           GOOS=windows GOARCH=amd64 go build -o dist/lown.exe main.go
-          zip -j dist/lown-v0.1.0-x86_64-pc-windows-msvc.zip dist/lown.exe
+          zip -j "dist/lown-${TAG_NAME}-x86_64-pc-windows-msvc.zip" dist/lown.exe
+          rm -f dist/lown.exe
           
           # Checksums
           cd dist && sha256sum *.tar.gz *.zip > checksums.txt
