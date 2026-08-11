@@ -1,0 +1,55 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & Release Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build Cross-Platform Artifacts
+        run: |
+          mkdir -p dist
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -o dist/lown-linux-amd64 main.go
+          tar -czf dist/lown-v0.1.0-x86_64-unknown-linux-gnu.tar.gz -C dist lown-linux-amd64
+          
+          # Linux arm64
+          GOOS=linux GOARCH=arm64 go build -o dist/lown-linux-arm64 main.go
+          tar -czf dist/lown-v0.1.0-aarch64-unknown-linux-gnu.tar.gz -C dist lown-linux-arm64
+          
+          # Darwin arm64
+          GOOS=darwin GOARCH=arm64 go build -o dist/lown-darwin-arm64 main.go
+          tar -czf dist/lown-v0.1.0-aarch64-apple-darwin.tar.gz -C dist lown-darwin-arm64
+          
+          # Darwin amd64
+          GOOS=darwin GOARCH=amd64 go build -o dist/lown-darwin-amd64 main.go
+          tar -czf dist/lown-v0.1.0-x86_64-apple-darwin.tar.gz -C dist lown-darwin-amd64
+          
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -o dist/lown.exe main.go
+          zip -j dist/lown-v0.1.0-x86_64-pc-windows-msvc.zip dist/lown.exe
+          
+          # Checksums
+          cd dist && sha256sum *.tar.gz *.zip > checksums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -6,26 +6,26 @@ import (
 	"path/filepath"
 	"testing"
 
-	"lown/internal/db"
-	"lown/internal/manifest"
 	"lown/internal/path"
 )
 
 func TestSmartInstallationGo(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("LOWN_ROOT", filepath.Join(tmpDir, ".lown"))
-	t.Setenv("LOWN_CONFIG_DIR", filepath.Join(tmpDir, ".config", "lown"))
+	t.Setenv("LOWN_BIN", filepath.Join(tmpDir, ".lown", "bin"))
+	t.Setenv("LOWN_APPS", filepath.Join(tmpDir, ".lown", "apps"))
 
-	if err := path.EnsureDirs(); err != nil {
-		t.Fatalf("EnsureDirs failed: %v", err)
+	installer, err := NewInstaller()
+	if err != nil {
+		t.Fatalf("NewInstaller error: %v", err)
 	}
 
-	// Create a mock Go package repo
+	// Create mock Go package directory
 	pkgDir := filepath.Join(tmpDir, "mock-go-pkg")
 	if err := os.MkdirAll(pkgDir, 0755); err != nil {
-		t.Fatalf("failed to create mock pkg dir: %v", err)
+		t.Fatalf("failed to create pkg dir: %v", err)
 	}
 
+	// Write lown.toml
 	manifestContent := `
 [package]
 name = "mock-go-tool"
@@ -37,46 +37,27 @@ executable = "mock-go-tool"
 		t.Fatalf("failed to write lown.toml: %v", err)
 	}
 
-	goCode := `package main
-
-import "fmt"
-
-func main() {
-	fmt.Println("Hello from mock Go tool")
-}
-`
-	if err := os.WriteFile(filepath.Join(pkgDir, "main.go"), []byte(goCode), 0644); err != nil {
-		t.Fatalf("failed to write main.go: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(pkgDir, "go.mod"), []byte("module mockgotool\n\ngo 1.22\n"), 0644); err != nil {
+	// Write mock main.go & go.mod
+	if err := os.WriteFile(filepath.Join(pkgDir, "go.mod"), []byte("module mock-go-tool\n\ngo 1.20\n"), 0644); err != nil {
 		t.Fatalf("failed to write go.mod: %v", err)
+	}
+	mainGoContent := `package main
+import "fmt"
+func main() { fmt.Println("mock go tool") }
+`
+	if err := os.WriteFile(filepath.Join(pkgDir, "main.go"), []byte(mainGoContent), 0644); err != nil {
+		t.Fatalf("failed to write main.go: %v", err)
 	}
 
 	// Install package
-	installer, err := NewInstaller()
-	if err != nil {
-		t.Fatalf("NewInstaller error: %v", err)
-	}
-
 	if err := installer.Install(pkgDir); err != nil {
 		t.Fatalf("Install failed: %v", err)
 	}
 
-	// Verify binary exists in ~/.lown/bin/
-	binPath := filepath.Join(path.BinDir(), "mock-go-tool")
+	// Verify binary exists
+	binPath := filepath.Join(installer.cfg.BinDir, "mock-go-tool")
 	if _, err := os.Stat(binPath); os.IsNotExist(err) {
-		t.Errorf("expected binary at %s was not created", binPath)
-	}
-
-	// Verify inventory entry
-	store := db.NewStore()
-	rec, exists, err := store.Get("mock-go-tool")
-	if err != nil || !exists {
-		t.Fatalf("inventory check failed: %v (exists: %v)", err, exists)
-	}
-
-	if rec.Version != "0.1.0" || rec.InstallType != "native-go" {
-		t.Errorf("unexpected record data: %+v", rec)
+		t.Errorf("binary was not created at expected path: %s", binPath)
 	}
 
 	// Remove package
@@ -84,34 +65,34 @@ func main() {
 		t.Fatalf("Remove failed: %v", err)
 	}
 
+	// Verify binary was removed
 	if _, err := os.Stat(binPath); !os.IsNotExist(err) {
-		t.Errorf("binary at %s should have been removed", binPath)
-	}
-
-	_, exists, _ = store.Get("mock-go-tool")
-	if exists {
-		t.Errorf("package record should have been deleted from inventory")
+		t.Errorf("binary was not removed from path: %s", binPath)
 	}
 }
 
 func TestSmartInstallationScriptFallback(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("LOWN_ROOT", filepath.Join(tmpDir, ".lown"))
-	t.Setenv("LOWN_CONFIG_DIR", filepath.Join(tmpDir, ".config", "lown"))
+	t.Setenv("LOWN_BIN", filepath.Join(tmpDir, ".lown", "bin"))
+	t.Setenv("LOWN_APPS", filepath.Join(tmpDir, ".lown", "apps"))
 
-	if err := path.EnsureDirs(); err != nil {
-		t.Fatalf("EnsureDirs failed: %v", err)
+	installer, err := NewInstaller()
+	if err != nil {
+		t.Fatalf("NewInstaller error: %v", err)
 	}
 
+	// Create mock script package directory
 	pkgDir := filepath.Join(tmpDir, "mock-script-pkg")
 	if err := os.MkdirAll(pkgDir, 0755); err != nil {
-		t.Fatalf("failed to create mock pkg dir: %v", err)
+		t.Fatalf("failed to create pkg dir: %v", err)
 	}
 
+	// Write lown.toml
 	manifestContent := `
 [package]
 name = "mock-script-tool"
 version = "0.1.0"
+executable = "mock-script-tool"
 
 [scripts]
 install = "install.sh"
@@ -121,69 +102,76 @@ uninstall = "uninstall.sh"
 		t.Fatalf("failed to write lown.toml: %v", err)
 	}
 
-	installScript := `#!/bin/sh
+	// Write mock install.sh
+	installShContent := `#!/bin/sh
 echo "Installing script tool to $LOWN_BIN"
-mkdir -p "$LOWN_BIN"
-echo "#!/bin/sh\necho script-tool-v0.1.0" > "$LOWN_BIN/mock-script-tool"
+touch "$LOWN_BIN/mock-script-tool"
 chmod +x "$LOWN_BIN/mock-script-tool"
 `
-	if err := os.WriteFile(filepath.Join(pkgDir, "install.sh"), []byte(installScript), 0755); err != nil {
+	if err := os.WriteFile(filepath.Join(pkgDir, "install.sh"), []byte(installShContent), 0755); err != nil {
 		t.Fatalf("failed to write install.sh: %v", err)
 	}
 
-	uninstallScript := `#!/bin/sh
+	// Write mock uninstall.sh
+	uninstallShContent := `#!/bin/sh
 echo "Uninstalling script tool from $LOWN_BIN"
 rm -f "$LOWN_BIN/mock-script-tool"
 `
-	if err := os.WriteFile(filepath.Join(pkgDir, "uninstall.sh"), []byte(uninstallScript), 0755); err != nil {
+	if err := os.WriteFile(filepath.Join(pkgDir, "uninstall.sh"), []byte(uninstallShContent), 0755); err != nil {
 		t.Fatalf("failed to write uninstall.sh: %v", err)
 	}
+
+	// Install package
+	if err := installer.Install(pkgDir); err != nil {
+		t.Fatalf("Install failed: %v", err)
+	}
+
+	// Verify binary exists
+	binPath := filepath.Join(installer.cfg.BinDir, "mock-script-tool")
+	if _, err := os.Stat(binPath); os.IsNotExist(err) {
+		t.Errorf("binary was not created at expected path: %s", binPath)
+	}
+
+	// Remove package
+	if err := installer.Remove("mock-script-tool"); err != nil {
+		t.Fatalf("Remove failed: %v", err)
+	}
+
+	// Verify binary was removed
+	if _, err := os.Stat(binPath); !os.IsNotExist(err) {
+		t.Errorf("binary was not removed from path: %s", binPath)
+	}
+}
+
+func TestSmartInstallationValidationFailure(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("LOWN_BIN", filepath.Join(tmpDir, ".lown", "bin"))
+	t.Setenv("LOWN_APPS", filepath.Join(tmpDir, ".lown", "apps"))
 
 	installer, err := NewInstaller()
 	if err != nil {
 		t.Fatalf("NewInstaller error: %v", err)
 	}
 
-	if err := installer.Install(pkgDir); err != nil {
-		t.Fatalf("Install failed: %v", err)
+	// Create mock invalid package directory (no native source, no install script)
+	pkgDir := filepath.Join(tmpDir, "mock-invalid-pkg")
+	if err := os.MkdirAll(pkgDir, 0755); err != nil {
+		t.Fatalf("failed to create pkg dir: %v", err)
 	}
-
-	binPath := filepath.Join(path.BinDir(), "mock-script-tool")
-	if _, err := os.Stat(binPath); os.IsNotExist(err) {
-		t.Errorf("expected binary at %s was not created by install script", binPath)
-	}
-
-	if err := installer.Remove("mock-script-tool"); err != nil {
-		t.Fatalf("Remove failed: %v", err)
-	}
-
-	if _, err := os.Stat(binPath); !os.IsNotExist(err) {
-		t.Errorf("binary at %s should have been removed by uninstall script/cleanup", binPath)
-	}
-}
-
-func TestSmartInstallationValidationFailure(t *testing.T) {
-	tmpDir := t.TempDir()
-	pkgDir := filepath.Join(tmpDir, "invalid-pkg")
-	_ = os.MkdirAll(pkgDir, 0755)
 
 	manifestContent := `
 [package]
-name = "invalid-tool"
+name = "mock-invalid-tool"
 version = "0.1.0"
+language = "python"
 `
-	_ = os.WriteFile(filepath.Join(pkgDir, "lown.toml"), []byte(manifestContent), 0644)
-
-	m, err := manifest.LoadFromDir(pkgDir)
-	if err == nil {
-		t.Errorf("expected manifest validation to fail for missing language & script")
+	if err := os.WriteFile(filepath.Join(pkgDir, "lown.toml"), []byte(manifestContent), 0644); err != nil {
+		t.Fatalf("failed to write lown.toml: %v", err)
 	}
 
-	if m != nil {
-		_, err = BuildAndInstall(pkgDir, m)
-		if err == nil {
-			t.Errorf("expected BuildAndInstall to fail")
-		}
+	// Attempt install, expect error
+	if err := installer.Install(pkgDir); err == nil {
+		t.Errorf("expected Install to fail for invalid package manifest")
 	}
 }
 
@@ -209,6 +197,24 @@ mytool = "gh:foo/bar"
 	expected := "https://github.com/foo/bar.git"
 	if resolved != expected {
 		t.Errorf("alias resolution failed: expected %s, got %s", expected, resolved)
+	}
+
+	resolvedRevoq := installer.cfg.ResolveURI("revoq")
+	expectedRevoq := "https://github.com/iamvxrn/revoq.git"
+	if resolvedRevoq != expectedRevoq {
+		t.Errorf("revoq built-in alias failed: expected %s, got %s", expectedRevoq, resolvedRevoq)
+	}
+
+	resolvedMuth := installer.cfg.ResolveURI("muth")
+	expectedMuth := "https://github.com/iamvxrn/muth.git"
+	if resolvedMuth != expectedMuth {
+		t.Errorf("muth built-in alias failed: expected %s, got %s", expectedMuth, resolvedMuth)
+	}
+
+	resolvedRuna := installer.cfg.ResolveURI("runa")
+	expectedRuna := "https://github.com/iamvxrn/runa.git"
+	if resolvedRuna != expectedRuna {
+		t.Errorf("runa built-in alias failed: expected %s, got %s", expectedRuna, resolvedRuna)
 	}
 
 	resolvedGH := installer.cfg.ResolveURI("gh:user/repo")

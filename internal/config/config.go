@@ -3,44 +3,69 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/BurntSushi/toml"
-
 	"lown/internal/path"
 )
 
-// Config represents global configuration in ~/.config/lown/config.toml
 type Config struct {
+	BinDir  string            `toml:"bin_dir"`
+	AppsDir string            `toml:"apps_dir"`
 	Aliases map[string]string `toml:"aliases"`
 }
 
-// NewConfig returns default configuration.
-func NewConfig() *Config {
-	return &Config{
-		Aliases: make(map[string]string),
-	}
-}
-
-// LoadConfig reads configuration from ~/.config/lown/config.toml
 func LoadConfig() (*Config, error) {
-	cfgPath := path.ConfigPath()
-	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
-		return NewConfig(), nil
-	}
-
-	data, err := os.ReadFile(cfgPath)
+	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file %s: %w", cfgPath, err)
+		return nil, fmt.Errorf("failed to get user home directory: %w", err)
 	}
 
-	cfg := NewConfig()
-	if err := toml.Unmarshal(data, cfg); err != nil {
-		return nil, fmt.Errorf("failed to parse config file %s: %w", cfgPath, err)
+	configPath := path.ConfigPath()
+
+	defaultBinDir := filepath.Join(home, ".lown", "bin")
+	defaultAppsDir := filepath.Join(home, ".lown", "apps")
+
+	cfg := &Config{
+		BinDir:  defaultBinDir,
+		AppsDir: defaultAppsDir,
+		Aliases: map[string]string{
+			"revoq": "gh:iamvxrn/revoq",
+			"muth":  "gh:iamvxrn/muth",
+			"runa":  "gh:iamvxrn/runa",
+			"lown":  "gh:iamvxrn/lown",
+		},
 	}
 
-	if cfg.Aliases == nil {
-		cfg.Aliases = make(map[string]string)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		return cfg, nil
+	}
+
+	fileCfg := struct {
+		BinDir  string            `toml:"bin_dir"`
+		AppsDir string            `toml:"apps_dir"`
+		Aliases map[string]string `toml:"aliases"`
+	}{}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	if err := toml.Unmarshal(data, &fileCfg); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	if fileCfg.BinDir != "" {
+		cfg.BinDir = fileCfg.BinDir
+	}
+	if fileCfg.AppsDir != "" {
+		cfg.AppsDir = fileCfg.AppsDir
+	}
+
+	for alias, uri := range fileCfg.Aliases {
+		cfg.Aliases[alias] = uri
 	}
 
 	return cfg, nil
