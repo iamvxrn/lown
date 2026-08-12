@@ -7,7 +7,7 @@
     <span class="hero__title-highlight">package compilation & deployment</span>
   </h1>
   <p class="hero__sub">
-    Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code> without sudo or central registries.
+    Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code>. Zero sudo required.
   </p>
 
   <div class="terminal-box">
@@ -78,8 +78,8 @@
 
 <!-- Interactive CLI Showcase -->
 <section class="section-wrapper" id="showcase">
-  <p class="section-label">Command Line Interface</p>
-  <h2 class="section-heading">Interactive Command Showcase</h2>
+  <p class="section-label">CLI Interface</p>
+  <h2 class="section-heading">Commands in Action</h2>
 
   <div class="showcase-box">
     <div class="showcase-tabs">
@@ -87,65 +87,43 @@
       <button class="showcase-tab" onclick="switchShowcaseTab('sc-list', this)">$ lown list --json</button>
       <button class="showcase-tab" onclick="switchShowcaseTab('sc-doctor', this)">$ lown doctor --json</button>
       <button class="showcase-tab" onclick="switchShowcaseTab('sc-rollback', this)">$ lown rollback &lt;name&gt;</button>
-      <button class="showcase-tab" onclick="switchShowcaseTab('sc-completion', this)">$ lown completion zsh</button>
     </div>
     <div class="showcase-body">
       <div id="sc-install" class="showcase-content is-active">
-        <pre><code style="color: #4ade80;">[info] Cloning gh:iamvxrn/trigg into ~/.lown/apps/trigg...</code>
-<code style="color: #4a7bc0;">[build] Detecting build environment... (Go module detected)</code>
-<code>[build] Compiling binary 'trigg' via 'go build -o ~/.lown/bin/trigg main.go'</code>
-<code style="color: #4ade80;">[ok] Successfully linked executable to ~/.lown/bin/trigg</code></pre>
+        <pre><span style="color: #4ade80;">[info] Cloning gh:iamvxrn/trigg into ~/.lown/apps/trigg...</span>
+<span style="color: #4a7bc0;">[build] Detecting build environment... (Go module detected)</span>
+[build] Compiling binary 'trigg' via 'go build -o ~/.lown/bin/trigg main.go'
+<span style="color: #4ade80;">[ok] Successfully linked executable to ~/.lown/bin/trigg</span></pre>
       </div>
       <div id="sc-list" class="showcase-content">
-        <pre><code>[
+        <pre>[
   {
     "name": "trigg",
     "version": "0.2.0",
     "commit": "7f5f822",
-    "executable": "~/.lown/bin/trigg",
-    "installed_at": "2026-08-12T16:55:00Z"
+    "executable": "~/.lown/bin/trigg"
   },
   {
     "name": "muth",
     "version": "0.2.0",
     "commit": "1549d31",
-    "executable": "~/.lown/bin/muth",
-    "installed_at": "2026-08-12T16:50:00Z"
+    "executable": "~/.lown/bin/muth"
   }
-]</code></pre>
+]</pre>
       </div>
       <div id="sc-doctor" class="showcase-content">
-        <pre><code>{
+        <pre>{
   "lown_version": "v0.2.0",
   "root_dir": "~/.lown",
   "bin_dir": "~/.lown/bin",
   "in_path": true,
-  "apps_count": 4,
   "status": "healthy"
-}</code></pre>
+}</pre>
       </div>
       <div id="sc-rollback" class="showcase-content">
-        <pre><code style="color: #4a7bc0;">[info] Searching for previous backup binary 'trigg.bak' in ~/.lown/bin/...</code>
-<code style="color: #4ade80;">[ok] Restored previous executable binary (trigg.bak -> trigg)</code>
-<code>[ok] Rollback completed successfully. Previous build restored.</code></pre>
-      </div>
-      <div id="sc-completion" class="showcase-content">
-        <pre><code style="color: var(--subtle);"># Add to your ~/.zshrc or ~/.bashrc:
-# eval "$(lown completion zsh)"</code>
-<code>#compdef lown
-_lown() {
-    local -a commands
-    commands=(
-        'install:Install package from Git URL or spec'
-        'remove:Remove installed package'
-        'rollback:Restore previous backup executable'
-        'sync:Pull latest changes and rebuild package'
-        'list:List all installed packages'
-        'doctor:Check Lown installation status'
-    )
-    _describe 'command' commands
-}
-_lown "$@"</code></pre>
+        <pre><span style="color: #4a7bc0;">[info] Searching for previous backup binary 'trigg.bak'...</span>
+<span style="color: #4ade80;">[ok] Restored previous binary (trigg.bak -> trigg)</span>
+[ok] Rollback complete.</pre>
       </div>
     </div>
   </div>
@@ -161,97 +139,41 @@ _lown "$@"</code></pre>
   </script>
 </section>
 
-<!-- System Architecture & Grid Features -->
+<!-- Human-Centric Feature Cards -->
 <section class="section-wrapper">
-  <p class="section-label">System Architecture</p>
-  <h2 class="section-heading">Core Architectural Highlights</h2>
+  <p class="section-label">Why Lown</p>
+  <h2 class="section-heading">Built for developers who want clean user-space tools</h2>
 
-  <div class="features__grid">
-    <div class="feature-card">
-      <div class="feature-card__number">01</div>
-      <div class="feature-card__title">User-Space Filesystem Sandbox</div>
-      <div class="feature-card__body">
-        Zero <code>sudo</code> or root privileges. All operations, cloned source repositories, linked binaries, and state metadata strictly reside in <code>~/.lown/</code>.
+  <div class="human-grid">
+    <div class="human-card">
+      <div class="human-card__tag">Sandbox</div>
+      <div class="human-card__title">100% Rootless</div>
+      <div class="human-card__body">
+        Never touches <code>/usr/bin</code> or prompts for <code>sudo</code>. Everything lives inside your home folder at <code>~/.lown/</code>.
       </div>
     </div>
 
-    <div class="feature-card">
-      <div class="feature-card__number">02</div>
-      <div class="feature-card__title">Decentralized Git Resolution</div>
-      <div class="feature-card__body">
-        No centralized package index. Installs directly from short specs (<code>gh:user/repo</code>), full Git URLs, or local filesystem paths.
+    <div class="human-card">
+      <div class="human-card__tag">Resolution</div>
+      <div class="human-card__title">Git as the Registry</div>
+      <div class="human-card__body">
+        No central store or lock-in. Pass any Git repository short spec like <code>gh:user/repo</code> or full URL to compile directly from source.
       </div>
     </div>
 
-    <div class="feature-card">
-      <div class="feature-card__number">03</div>
-      <div class="feature-card__title">Atomic Backup & Rollbacks</div>
-      <div class="feature-card__body">
-        Before updating binaries, Lown backs up existing executables to <code>.bak</code>. Revert instantly with <code>lown rollback &lt;name&gt;</code>.
+    <div class="human-card">
+      <div class="human-card__tag">Safety</div>
+      <div class="human-card__title">Instant Rollbacks</div>
+      <div class="human-card__body">
+        Before overwriting binaries during upgrades, Lown automatically preserves the previous build as a <code>.bak</code> binary. Revert instantly with one command.
       </div>
     </div>
 
-    <div class="feature-card">
-      <div class="feature-card__number">04</div>
-      <div class="feature-card__title">Machine-Readable Agent API</div>
-      <div class="feature-card__body">
-        Built-in <code>--json</code> flags across <code>list</code> and <code>doctor</code> provide clean JSON payloads for AI agents and automated CI scripts.
-      </div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-card__number">05</div>
-      <div class="feature-card__title">Fallback Shell Installer</div>
-      <div class="feature-card__body">
-        Native Go and Rust projects compile out-of-the-box. Custom toolchains execute <code>scripts.install</code> specified in <code>lown.toml</code>.
-      </div>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-card__number">06</div>
-      <div class="feature-card__title">Zero System Dependency Overhead</div>
-      <div class="feature-card__body">
-        Compiled as a standalone Go binary. Needs no background daemons, runtime virtual machines, or heavy system libraries.
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Step-by-Step Workflow -->
-<section class="section-wrapper">
-  <p class="section-label">Execution Pipeline</p>
-  <h2 class="section-heading">How Lown Manages Packages</h2>
-
-  <div class="workflow-grid">
-    <div class="workflow-card">
-      <div class="workflow-card__step">Step 01</div>
-      <div class="workflow-card__title">Fetch & Clone</div>
-      <div class="workflow-card__desc">
-        Parses specification URI, fetches repository from Git, and places source tree into <code>~/.lown/apps/&lt;name&gt;</code>.
-      </div>
-    </div>
-
-    <div class="workflow-card">
-      <div class="workflow-card__step">Step 02</div>
-      <div class="workflow-card__title">Build Resolution</div>
-      <div class="workflow-card__desc">
-        Detects <code>lown.toml</code>, <code>go.mod</code>, or <code>Cargo.toml</code>. Compiles native release binary inside an isolated directory.
-      </div>
-    </div>
-
-    <div class="workflow-card">
-      <div class="workflow-card__step">Step 03</div>
-      <div class="workflow-card__title">Atomic Swap & Link</div>
-      <div class="workflow-card__desc">
-        Copies previous executable to <code>.bak</code> and places new binary into <code>~/.lown/bin/</code> with executable permissions.
-      </div>
-    </div>
-
-    <div class="workflow-card">
-      <div class="workflow-card__step">Step 04</div>
-      <div class="workflow-card__title">Audit & Sync</div>
-      <div class="workflow-card__desc">
-        Tracks HEAD commit SHAs in manifest database. <code>lown sync</code> pulls updates and rebuilds only when commits change.
+    <div class="human-card">
+      <div class="human-card__tag">Automation</div>
+      <div class="human-card__body" style="padding-top: 0.2rem;">
+        <div class="human-card__title">Agent-Native JSON</div>
+        Provides machine-readable <code>--json</code> flags across commands, allowing AI coding assistants and scripts to inspect system state safely.
       </div>
     </div>
   </div>
@@ -259,8 +181,8 @@ _lown "$@"</code></pre>
 
 <!-- Comparison Matrix -->
 <section class="section-wrapper" id="comparison">
-  <p class="section-label">Feature Matrix</p>
-  <h2 class="section-heading">Lown vs Traditional Package Managers</h2>
+  <p class="section-label">Comparison</p>
+  <h2 class="section-heading">Lown vs Traditional Tools</h2>
 
   <div class="comparison-table-wrapper">
     <table class="comparison-table">
@@ -277,84 +199,33 @@ _lown "$@"</code></pre>
         <tr>
           <td>Rootless / No sudo required</td>
           <td><span class="badge-yes">✓ 100% User-Space</span></td>
-          <td><span class="badge-no">✗ Requires chown</span></td>
+          <td><span class="badge-no">✗ System permissions</span></td>
           <td><span class="badge-yes">✓ User-space</span></td>
           <td><span class="badge-no">✗ Requires sudo</span></td>
         </tr>
         <tr>
-          <td>Decentralized (No Central Registry)</td>
-          <td><span class="badge-yes">✓ Direct Git / URIs</span></td>
-          <td><span class="badge-no">✗ Central Tap Repo</span></td>
+          <td>Decentralized Git Sources</td>
+          <td><span class="badge-yes">✓ Any Git repo</span></td>
+          <td><span class="badge-no">✗ Central Tap</span></td>
           <td><span class="badge-no">✗ crates.io</span></td>
-          <td><span class="badge-no">✗ Central Repositories</span></td>
+          <td><span class="badge-no">✗ Central Repos</span></td>
         </tr>
         <tr>
-          <td>Instant Binary Rollbacks (.bak)</td>
-          <td><span class="badge-yes">✓ Native (lown rollback)</span></td>
+          <td>Instant Binary Rollbacks</td>
+          <td><span class="badge-yes">✓ lown rollback</span></td>
           <td><span class="badge-no">✗ Complex Pinning</span></td>
           <td><span class="badge-no">✗ Recompile Needed</span></td>
-          <td><span class="badge-no">✗ Package Cache Only</span></td>
+          <td><span class="badge-no">✗ Cache Only</span></td>
         </tr>
         <tr>
-          <td>Machine-Readable --json Output</td>
-          <td><span class="badge-yes">✓ Agent Native</span></td>
-          <td><span class="badge-no">Partial (brew info --json)</span></td>
-          <td><span class="badge-no">✗ Plain text only</span></td>
-          <td><span class="badge-no">✗ Text output</span></td>
-        </tr>
-        <tr>
-          <td>Cross-Platform Support</td>
-          <td><span class="badge-yes">✓ Linux / macOS / Win</span></td>
-          <td>macOS / Linux</td>
-          <td><span class="badge-yes">✓ Multi-platform</span></td>
-          <td>Linux only</td>
+          <td>Agent JSON Output</td>
+          <td><span class="badge-yes">✓ Native --json</span></td>
+          <td>Partial</td>
+          <td><span class="badge-no">✗ Text only</span></td>
+          <td><span class="badge-no">✗ Text only</span></td>
         </tr>
       </tbody>
     </table>
-  </div>
-</section>
-
-<!-- FAQ Accordion -->
-<section class="section-wrapper">
-  <p class="section-label">Frequently Asked Questions</p>
-  <h2 class="section-heading">Answers & Clarifications</h2>
-
-  <div class="faq-list">
-    <div class="faq-item">
-      <details>
-        <summary>Why use Lown instead of standard package managers?</summary>
-        <div class="faq-item__answer">
-          Lown operates completely in user-space without administrative permissions or root access. It doesn't lock you into a central registry and compiles binaries natively from git sources with automatic <code>.bak</code> rollback safety.
-        </div>
-      </details>
-    </div>
-
-    <div class="faq-item">
-      <details>
-        <summary>How does Lown handle project builds?</summary>
-        <div class="faq-item__answer">
-          Lown inspects target repositories for <code>lown.toml</code>, <code>go.mod</code>, or <code>Cargo.toml</code>. If native Go or Rust specs are found, it compiles release binaries. If a custom build script is specified in <code>lown.toml</code>, it executes the custom install script inside the isolated app directory.
-        </div>
-      </details>
-    </div>
-
-    <div class="faq-item">
-      <details>
-        <summary>How do I configure my shell PATH for Lown?</summary>
-        <div class="faq-item__answer">
-          Add <code>export PATH="$HOME/.lown/bin:$PATH"</code> to your <code>~/.zshrc</code> or <code>~/.bashrc</code> file. You can verify your shell environment anytime by running <code>lown doctor</code>.
-        </div>
-      </details>
-    </div>
-
-    <div class="faq-item">
-      <details>
-        <summary>Is Lown compatible with AI Coding Agents?</summary>
-        <div class="faq-item__answer">
-          Yes! Lown supports machine-readable <code>--json</code> flags across commands like <code>lown list --json</code> and <code>lown doctor --json</code>, making it seamless for AI agents to inspect, manage, and verify package states programmatically.
-        </div>
-      </details>
-    </div>
   </div>
 </section>
 
