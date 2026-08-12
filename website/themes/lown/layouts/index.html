@@ -1,16 +1,88 @@
 {{ define "main" }}
 
 <div class="landing">
-  <!-- Hero Section -->
+  <!-- Original Hero Section Restored -->
   <section class="hero">
-    <div class="hero__badge">lown {{ .Site.Params.version | default "v0.2.0" }}</div>
-    <h1 class="hero__title">User-space package manager<br>for developer tools</h1>
+    <span class="hero__eyebrow">lown {{ .Site.Params.version | default "v0.2.0" }} — user-space binary manager</span>
+    <h1 class="hero__title">
+      Automated user-space <br>
+      <span class="hero__title-highlight">package compilation & deployment</span>
+    </h1>
     <p class="hero__sub">
-      Clones Git repos, builds Go and Rust releases, and links executables to <code>~/.lown/bin/</code> without sudo.
+      Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code>. Zero sudo required.
     </p>
 
-    <!-- Terminal Showcase directly in Hero -->
-    <div class="showcase-box" id="showcase">
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+        </div>
+        <div class="terminal-tabs">
+          <button class="terminal-tab is-active" id="tab-curl" onclick="switchInstallTab('curl')">curl | sh</button>
+          <button class="terminal-tab" id="tab-lown" onclick="switchInstallTab('lown')">lown</button>
+          <button class="terminal-tab" id="tab-go" onclick="switchInstallTab('go')">go</button>
+          <button class="terminal-tab" id="tab-git" onclick="switchInstallTab('git')">git</button>
+        </div>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-cmd">
+          <span class="terminal-prompt">$</span><span id="hero-install-cmd">curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh</span>
+        </div>
+        <button
+          class="copy-btn"
+          id="hero-install-copy"
+          data-copy="curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh"
+          onclick="copyInstallCmd()"
+        >
+          copy
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="/docs/" class="hero-footer-link">Documentation & Spec →</a>
+      <a href="#showcase" class="hero-footer-link" style="color: var(--subtle);">Interactive Terminal ↓</a>
+      <a href="#comparison" class="hero-footer-link" style="color: var(--subtle);">Feature Matrix ↓</a>
+    </div>
+
+    <script>
+      var installCmds = {
+        curl: "curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh",
+        lown: "lown install gh:iamvxrn/lown",
+        go: "go install github.com/iamvxrn/lown@latest",
+        git: "git clone https://github.com/iamvxrn/lown.git && cd lown && go build -o lown main.go"
+      };
+
+      function switchInstallTab(tabKey) {
+        document.querySelectorAll('.terminal-tab').forEach(function(b) { b.classList.remove('is-active'); });
+        var tabBtn = document.getElementById('tab-' + tabKey);
+        if (tabBtn) tabBtn.classList.add('is-active');
+        var cmd = installCmds[tabKey] || installCmds.curl;
+        var span = document.getElementById('hero-install-cmd');
+        var btn = document.getElementById('hero-install-copy');
+        if (span) span.textContent = cmd;
+        if (btn) btn.setAttribute('data-copy', cmd);
+      }
+
+      function copyInstallCmd() {
+        var btn = document.getElementById('hero-install-copy');
+        var cmd = btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(cmd).then(function() {
+          var oldText = btn.textContent;
+          btn.textContent = 'copied!';
+          setTimeout(function() { btn.textContent = oldText; }, 1500);
+        });
+      }
+    </script>
+  </section>
+
+  <!-- Interactive CLI Showcase -->
+  <section class="features-section" id="showcase" style="margin-top: 3.5rem;">
+    <h2 class="section-title">Commands in action</h2>
+
+    <div class="showcase-box">
       <div class="showcase-tabs">
         <button class="showcase-tab is-active" onclick="switchShowcaseTab('sc-install', this)">$ lown install gh:user/repo</button>
         <button class="showcase-tab" onclick="switchShowcaseTab('sc-list', this)">$ lown list --json</button>
@@ -56,16 +128,9 @@
         </div>
       </div>
     </div>
-
-    <!-- Installer Command Line -->
-    <div class="install-bar">
-      <span class="install-bar__prompt">$</span>
-      <span class="install-bar__cmd" id="hero-install-cmd">curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh</span>
-      <button class="copy-btn" id="hero-install-copy" data-copy="curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh" onclick="copyInstallCmd()">copy</button>
-    </div>
   </section>
 
-  <!-- Features Section: Asymmetric Spotlight -->
+  <!-- Features Section: Asymmetric Spotlight Grid -->
   <section class="features-section">
     <h2 class="section-title">Built for clean, rootless binary management</h2>
     
@@ -101,7 +166,7 @@
   </section>
 
   <!-- Comparison Section -->
-  <section class="comparison-section">
+  <section class="comparison-section" id="comparison">
     <h2 class="section-title">How Lown compares to traditional package managers</h2>
 
     <div class="comparison-table-wrapper">
@@ -152,16 +217,6 @@
     btn.classList.add('is-active');
     var target = document.getElementById(contentId);
     if (target) target.classList.add('is-active');
-  }
-
-  function copyInstallCmd() {
-    var btn = document.getElementById('hero-install-copy');
-    var cmd = btn.getAttribute('data-copy');
-    navigator.clipboard.writeText(cmd).then(function() {
-      var oldText = btn.textContent;
-      btn.textContent = 'copied!';
-      setTimeout(function() { btn.textContent = oldText; }, 1500);
-    });
   }
 </script>
 
