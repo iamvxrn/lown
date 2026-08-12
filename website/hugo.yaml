@@ -25,4 +25,19 @@ params:
   description: "User-space package manager for Linux and macOS"
   tagline: "User-space package manager"
   github: "https://github.com/iamvxrn/lown"
+
+  # Flexible Feature Configuration Toggles
+  features:
+    enable_changelog: true
+    enable_comparison: true
+    enable_showcase: true
+    enable_ai_disclosure: true
+    install_command: "curl -fsSL https://lown.pages.dev/install.sh | sh"
+
+  # Community & Repository Links
+  social:
+    github: "https://github.com/iamvxrn/lown"
+    releases: "https://github.com/iamvxrn/lown/releases"
+    license: "https://github.com/iamvxrn/lown/blob/main/LICENSE"
+
 disableKinds: ["taxonomy", "term"]

@@ -2,12 +2,14 @@
   <div class="footer__container">
     <div>
       <span>{{ .Site.Title }} — {{ .Site.Params.description }}</span>
+      {{ if .Site.Params.features.enable_ai_disclosure }}
       <p style="margin-top: 0.3rem; font-size: 0.78rem; color: var(--subtle);">
         Built autonomously by AI agentic pairing under human direction.
       </p>
+      {{ end }}
     </div>
     <div>
-      <span>Released under the MIT License</span>
+      <a href="{{ .Site.Params.social.license | default "LICENSE" }}" target="_blank" rel="noopener" style="color: inherit;">Released under the MIT License</a>
     </div>
   </div>
 </footer>
