@@ -1,0 +1,16 @@
+<nav class="nav">
+  <div class="nav__container">
+    <a href="/" class="nav__brand">
+      {{ .Site.Title }}
+      <span class="nav__brand-badge">{{ .Site.Params.version }}</span>
+    </a>
+    <ul class="nav__links">
+      {{ range .Site.Menus.main }}
+      <li><a href="{{ .URL }}" class="nav__link">{{ .Name }}</a></li>
+      {{ end }}
+      {{ with .Site.Params.github }}
+      <li><a href="{{ . }}" class="nav__link" target="_blank" rel="noopener">GitHub ↗</a></li>
+      {{ end }}
+    </ul>
+  </div>
+</nav>

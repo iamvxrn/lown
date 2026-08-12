@@ -1,7 +1,7 @@
 baseURL: "https://lown.pages.dev/"
 locale: "en-us"
 title: "lown"
-theme: "lown"
+theme: "ecosystem"
 
 markup:
   goldmark:
@@ -24,4 +24,5 @@ params:
   version: "v0.3.0"
   description: "User-space package manager for Linux and macOS"
   tagline: "User-space package manager"
+  github: "https://github.com/iamvxrn/lown"
 disableKinds: ["taxonomy", "term"]
