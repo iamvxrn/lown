@@ -1,7 +1,7 @@
 {{ define "main" }}
 
 <div class="landing">
-  <!-- Original Hero Section Restored -->
+  <!-- Original Hero Section -->
   <section class="hero">
     <span class="hero__eyebrow">lown {{ .Site.Params.version | default "v0.2.0" }} — user-space binary manager</span>
     <h1 class="hero__title">
@@ -165,7 +165,7 @@
     </div>
   </section>
 
-  <!-- Comparison Section -->
+  <!-- Expanded Comparison Section -->
   <section class="comparison-section" id="comparison">
     <h2 class="section-title">How Lown compares to traditional package managers</h2>
 
@@ -177,32 +177,51 @@
             <th>Lown</th>
             <th>Homebrew</th>
             <th>Cargo Install</th>
+            <th>Nix / Devbox</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Rootless / No sudo required</td>
-            <td><span class="badge-yes">✓ 100% User-Space</span></td>
+            <td>Rootless / Zero `sudo` Required</td>
+            <td><span class="badge-yes">✓ 100% User-Space (~/.lown/)</span></td>
             <td><span class="badge-no">✗ System permissions</span></td>
-            <td><span class="badge-yes">✓ User-space</span></td>
+            <td><span class="badge-yes">✓ User-Space (~/.cargo/)</span></td>
+            <td><span class="badge-yes">✓ Nix store / user-space</span></td>
           </tr>
           <tr>
             <td>Decentralized Git Sources</td>
-            <td><span class="badge-yes">✓ Any Git repo</span></td>
-            <td><span class="badge-no">✗ Central Tap</span></td>
-            <td><span class="badge-no">✗ crates.io</span></td>
+            <td><span class="badge-yes">✓ Direct gh:user/repo</span></td>
+            <td><span class="badge-no">✗ Central Homebrew Taps</span></td>
+            <td><span class="badge-no">✗ crates.io Registry</span></td>
+            <td><span class="badge-no">✗ Nixpkgs attribute set</span></td>
           </tr>
           <tr>
             <td>Instant Binary Rollbacks</td>
             <td><span class="badge-yes">✓ lown rollback</span></td>
-            <td><span class="badge-no">✗ Complex Pinning</span></td>
-            <td><span class="badge-no">✗ Recompile Needed</span></td>
+            <td><span class="badge-no">✗ Complex formula pinning</span></td>
+            <td><span class="badge-no">✗ Recompile required</span></td>
+            <td><span class="badge-yes">✓ Generation rollback</span></td>
           </tr>
           <tr>
-            <td>Agent JSON Output</td>
+            <td>Shell Completion Generator</td>
+            <td><span class="badge-yes">✓ lown completion</span></td>
+            <td><span class="badge-yes">✓ Formula completions</span></td>
+            <td><span class="badge-no">✗ No built-in generator</span></td>
+            <td><span class="badge-yes">✓ Shell hooks</span></td>
+          </tr>
+          <tr>
+            <td>Agent-Native Machine Output</td>
             <td><span class="badge-yes">✓ Native --json</span></td>
             <td>Partial</td>
-            <td><span class="badge-no">✗ Text only</span></td>
+            <td><span class="badge-no">✗ Text output only</span></td>
+            <td><span class="badge-yes">✓ JSON evaluation</span></td>
+          </tr>
+          <tr>
+            <td>Smart Build Auto-Detection</td>
+            <td><span class="badge-yes">✓ Go, Rust & Revoq (C/C++)</span></td>
+            <td><span class="badge-no">✗ Precompiled Bottlenecks</span></td>
+            <td><span class="badge-no">✗ Rust crates only</span></td>
+            <td><span class="badge-yes">✓ Nix expressions</span></td>
           </tr>
         </tbody>
       </table>
