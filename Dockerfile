@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine as builder
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 go build -o lown main.go
