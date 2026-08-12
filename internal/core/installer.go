@@ -1,11 +1,9 @@
 package core
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"lown/internal/config"
@@ -41,17 +39,6 @@ func NewInstaller() (*Installer, error) {
 
 // Install fetches, compiles/executes, and records a new package.
 func (ins *Installer) Install(rawURI string) error {
-	if strings.ToLower(strings.TrimSpace(rawURI)) == "faf" {
-		ui.LogInfo("Installing complete FAF Developer Suite (lown, muth, revoq, trigg)...")
-		for _, pkg := range []string{"lown", "muth", "revoq", "trigg"} {
-			if err := ins.Install(pkg); err != nil {
-				ui.LogWarning("Failed to install '%s': %v", pkg, err)
-			}
-		}
-		ui.LogSuccess("FAF Developer Suite installation complete!")
-		return nil
-	}
-
 	resolvedURI := ins.cfg.ResolveURI(rawURI)
 	ui.LogInfo("Installing from %s...", resolvedURI)
 
@@ -293,17 +280,11 @@ func (ins *Installer) Sync(targetPkg string) error {
 	return nil
 }
 
-// List prints installed package inventory in human-readable table or structured JSON.
-func (ins *Installer) List(asJSON bool) error {
+// List prints installed package inventory.
+func (ins *Installer) List() error {
 	packages, err := ins.store.List()
 	if err != nil {
 		return err
-	}
-
-	if asJSON {
-		encoder := json.NewEncoder(os.Stdout)
-		encoder.SetIndent("", "  ")
-		return encoder.Encode(packages)
 	}
 
 	if len(packages) == 0 {

@@ -31,19 +31,10 @@ func LoadConfig() (*Config, error) {
 		BinDir:  defaultBinDir,
 		AppsDir: defaultAppsDir,
 		Aliases: map[string]string{
-			"revoq":   "gh:iamvxrn/revoq",
-			"muth":    "gh:iamvxrn/muth",
-			"trigg":   "gh:iamvxrn/trigg",
-			"runa":    "gh:iamvxrn/trigg",
-			"lown":    "gh:iamvxrn/lown",
-			"ripgrep": "gh:BurntSushi/ripgrep",
-			"fd":      "gh:sharkdp/fd",
-			"bat":     "gh:sharkdp/bat",
-			"fzf":     "gh:junegunn/fzf",
-			"zoxide":  "gh:ajeetdsouza/zoxide",
-			"eza":     "gh:eza-community/eza",
-			"jq":      "gh:jqlang/jq",
-			"vhs":     "gh:charmbracelet/vhs",
+			"revoq": "gh:iamvxrn/revoq",
+			"muth":  "gh:iamvxrn/muth",
+			"runa":  "gh:iamvxrn/runa",
+			"lown":  "gh:iamvxrn/lown",
 		},
 	}
 
