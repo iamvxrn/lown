@@ -26,6 +26,7 @@ Commands:
   sync, update [name] Pull latest changes and rebuild package(s) if updated
   list, ls            List all installed packages
   doctor              Check Lown installation status and shell environment
+  completion <shell>  Generate shell auto-completion script (bash, zsh, fish)
   version             Print Lown version
   help                Show this help message
 
@@ -126,6 +127,13 @@ func main() {
 	case "doctor":
 		runDoctor()
 
+	case "completion":
+		shell := "zsh"
+		if len(os.Args) >= 3 {
+			shell = os.Args[2]
+		}
+		printCompletion(shell)
+
 	case "version", "-v", "--version":
 		fmt.Printf("Lown v%s\n", version)
 
@@ -165,3 +173,46 @@ func runDoctor() {
 		fmt.Printf("    export PATH=\"%s:$PATH\"\n", binDir)
 	}
 }
+
+func printCompletion(shell string) {
+	switch strings.ToLower(shell) {
+	case "bash":
+		fmt.Print(`# lown bash completion
+_lown_completions() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local cmds="install remove rollback sync list doctor version help completion"
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $(compgen -W "${cmds}" -- ${cur}) )
+    fi
+}
+complete -F _lown_completions lown
+`)
+	case "zsh":
+		fmt.Print(`#compdef lown
+_lown() {
+    local -a commands
+    commands=(
+        'install:Install package from Git URL or spec'
+        'remove:Remove installed package'
+        'rollback:Restore previous backup executable'
+        'sync:Pull latest changes and rebuild package'
+        'list:List all installed packages'
+        'doctor:Check Lown installation status'
+        'version:Print Lown version'
+        'completion:Generate shell auto-completion script'
+    )
+    _describe 'command' commands
+}
+_lown "$@"
+`)
+	case "fish":
+		fmt.Print(`# lown fish completion
+complete -c lown -f
+complete -c lown -n "not __fish_seen_subcommand_from install remove rollback sync list doctor version completion" -a "install remove rollback sync list doctor version completion"
+`)
+	default:
+		ui.LogError("Unsupported shell '%s'. Supported shells: bash, zsh, fish", shell)
+		os.Exit(1)
+	}
+}
+

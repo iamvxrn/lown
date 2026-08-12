@@ -1,0 +1,33 @@
+name: Nightly Build & E2E Test
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly-test:
+    name: Nightly E2E Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Unit Tests
+        run: go test ./...
+
+      - name: Build Binary
+        run: go build -o lown main.go
+
+      - name: Run E2E Diagnostics & Commands
+        run: |
+          ./lown doctor --json
+          ./lown list --json
+          ./lown completion zsh
