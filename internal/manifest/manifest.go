@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -33,13 +34,16 @@ type Manifest struct {
 	Scripts ScriptConfig `toml:"scripts"`
 }
 
-// GetExecutable returns the configured executable name or defaults to package name.
+// GetExecutable returns the configured executable name (with .exe on Windows) or defaults to package name.
 func (m *Manifest) GetExecutable() string {
-	exec := strings.TrimSpace(m.Package.Executable)
-	if exec != "" {
-		return exec
+	execName := strings.TrimSpace(m.Package.Executable)
+	if execName == "" {
+		execName = strings.TrimSpace(m.Package.Name)
 	}
-	return strings.TrimSpace(m.Package.Name)
+	if runtime.GOOS == "windows" && !strings.HasSuffix(strings.ToLower(execName), ".exe") {
+		execName += ".exe"
+	}
+	return execName
 }
 
 // GetLanguage returns normalized language (lowercase).
