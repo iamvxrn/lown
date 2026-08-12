@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -113,18 +114,19 @@ func main() {
 		}
 
 	case "list", "ls":
+		asJSON := containsJSON(os.Args)
 		installer, err := core.NewInstaller()
 		if err != nil {
 			ui.LogError("%v", err)
 			os.Exit(1)
 		}
-		if err := installer.List(); err != nil {
+		if err := installer.List(asJSON); err != nil {
 			ui.LogError("%v", err)
 			os.Exit(1)
 		}
 
 	case "doctor":
-		runDoctor()
+		runDoctor(containsJSON(os.Args))
 
 	case "version", "-v", "--version":
 		fmt.Printf("Lown v%s\n", version)
@@ -139,14 +141,7 @@ func main() {
 	}
 }
 
-func runDoctor() {
-	ui.LogInfo("Running Lown system diagnostics...")
-	fmt.Printf("  • Lown Version: v%s\n", version)
-	fmt.Printf("  • Lown Root:    %s\n", path.LownRoot())
-	fmt.Printf("  • Bin Dir:      %s\n", path.BinDir())
-	fmt.Printf("  • Apps Dir:     %s\n", path.AppsDir())
-	fmt.Printf("  • Config File:  %s\n", path.ConfigPath())
-
+func runDoctor(asJSON bool) {
 	binDir := path.BinDir()
 	pathEnv := os.Getenv("PATH")
 	inPath := false
@@ -157,6 +152,27 @@ func runDoctor() {
 		}
 	}
 
+	if asJSON {
+		res := map[string]interface{}{
+			"version":    version,
+			"lown_root":  path.LownRoot(),
+			"bin_dir":    binDir,
+			"apps_dir":   path.AppsDir(),
+			"config":     path.ConfigPath(),
+			"in_path":    inPath,
+		}
+		data, _ := json.MarshalIndent(res, "", "  ")
+		fmt.Println(string(data))
+		return
+	}
+
+	ui.LogInfo("Running Lown system diagnostics...")
+	fmt.Printf("  • Lown Version: v%s\n", version)
+	fmt.Printf("  • Lown Root:    %s\n", path.LownRoot())
+	fmt.Printf("  • Bin Dir:      %s\n", path.BinDir())
+	fmt.Printf("  • Apps Dir:     %s\n", path.AppsDir())
+	fmt.Printf("  • Config File:  %s\n", path.ConfigPath())
+
 	if inPath {
 		ui.LogSuccess("PATH configuration is correct (%s is in PATH).", binDir)
 	} else {
@@ -164,4 +180,13 @@ func runDoctor() {
 		fmt.Printf("    To fix, add this line to your ~/.bashrc or ~/.zshrc:\n")
 		fmt.Printf("    export PATH=\"%s:$PATH\"\n", binDir)
 	}
+}
+
+func containsJSON(args []string) bool {
+	for _, a := range args {
+		if a == "--json" || a == "-j" {
+			return true
+		}
+	}
+	return false
 }
