@@ -1,22 +1,33 @@
 ---
-title: "Overview & Philosophy"
-date: 2026-08-11
+title: "Overview & Configuration"
+date: 2026-08-13
 prev_title: ""
 prev_link: ""
 next_title: "Installation Track"
 next_link: "/docs/installation/"
 ---
 
-## User-Space Binary Management
+# Lown Configuration & Architecture
 
-Lown is an autonomous user-space binary manager designed to solve the complexity of local developer toolchains without requiring administrative `sudo` privileges or bloated system package managers.
+Lown is configured flexibly via `~/.config/lown/config.toml` (XDG standard) or local `lown.toml` files.
 
-### Core Principles
+## Configuration Schema (`~/.config/lown/config.toml`)
 
-- **Zero Root Privileges**: All compiled binaries and managed applications reside strictly inside `~/.lown/bin/` and `~/.lown/apps/`.
-- **Native Builder Engine**: Automatically detects project languages (`Go`, `Rust`, `Revoq`, `C/C++`) and invokes `go build`, `cargo build --release`, or `revoq build`.
-- **Git Synchronization**: Track installed tools directly against upstream Git commit SHAs, updating with a single `lown sync` command.
+```toml
+bin_dir = "~/.local/bin"          # Directory where binary links are created
+apps_dir = "~/.lown/apps"         # Directory where package repositories are cloned
+default_forge = "github"          # "github", "gitlab", "codeberg", "sourcehut"
+auto_backup = true                # Create executable backup (.bak) on update
 
-## Next Steps
+[aliases]
+revoq = "gh:iamvxrn/revoq"
+muth  = "gh:iamvxrn/muth"
+trigg = "gh:iamvxrn/trigg"
+mytool = "gl:user/repo"           # Custom GitLab alias
+```
 
-Proceed to the next lesson to learn how to install and configure Lown on Linux, macOS, or WSL.
+## Core Principles
+
+- **Zero Root Privileges**: All compiled binaries reside strictly inside `~/.local/bin/` or `~/.lown/bin/`.
+- **Native Builder Engine**: Automatically detects project types (`Go`, `Rust`, `Revoq`, `Make`, `CMake`, `Autotools`) and builds native executables.
+- **One-Command Rollback**: Restore previous executable backups instantly via `lown rollback <pkg>`.
