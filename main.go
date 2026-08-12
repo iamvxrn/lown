@@ -11,7 +11,7 @@ import (
 	"lown/internal/ui"
 )
 
-const version = "0.1.1"
+const version = "0.1.2"
 
 func printUsage() {
 	banner := `Lown - Decentralized, User-Space Package Manager & Orchestrator
