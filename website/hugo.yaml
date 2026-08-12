@@ -16,9 +16,12 @@ menu:
     - name: "Docs"
       url: "/docs/"
       weight: 1
+    - name: "Changelog"
+      url: "/changelog/"
+      weight: 2
 
 params:
-  version: "v0.1.0"
+  version: "v0.3.0"
   description: "User-space package manager for Linux and macOS"
   tagline: "User-space package manager"
 disableKinds: ["taxonomy", "term"]
