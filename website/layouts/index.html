@@ -1,0 +1,238 @@
+{{ define "main" }}
+
+<div class="landing">
+  <!-- Original Hero Section -->
+  <section class="hero">
+    <span class="hero__eyebrow">lown {{ .Site.Params.version | default "v0.3.0" }} — user-space binary manager</span>
+    <h1 class="hero__title">
+      Automated user-space <br>
+      <span class="hero__title-highlight">package compilation & deployment</span>
+    </h1>
+    <p class="hero__sub">
+      Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code>. Zero sudo required.
+    </p>
+
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+        </div>
+        <div class="terminal-tabs">
+          <button class="terminal-tab is-active" id="tab-curl" onclick="switchInstallTab('curl')">curl | sh</button>
+          <button class="terminal-tab" id="tab-go" onclick="switchInstallTab('go')">go</button>
+        </div>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-cmd">
+          <span class="terminal-prompt">$</span><span id="hero-install-cmd">curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh</span>
+        </div>
+        <button
+          class="copy-btn"
+          id="hero-install-copy"
+          data-copy="curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh"
+          onclick="copyInstallCmd()"
+        >
+          copy
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="/docs/" class="hero-footer-link">Documentation & Spec →</a>
+      <a href="#showcase" class="hero-footer-link" style="color: var(--subtle);">Interactive Terminal ↓</a>
+      <a href="#comparison" class="hero-footer-link" style="color: var(--subtle);">Feature Matrix ↓</a>
+    </div>
+
+    <script>
+      var installCmds = {
+        curl: "curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh",
+        go: "go install github.com/iamvxrn/lown@latest"
+      };
+
+      function switchInstallTab(tabKey) {
+        document.querySelectorAll('.terminal-tab').forEach(function(b) { b.classList.remove('is-active'); });
+        var tabBtn = document.getElementById('tab-' + tabKey);
+        if (tabBtn) tabBtn.classList.add('is-active');
+        var cmd = installCmds[tabKey] || installCmds.curl;
+        var span = document.getElementById('hero-install-cmd');
+        var btn = document.getElementById('hero-install-copy');
+        if (span) span.textContent = cmd;
+        if (btn) btn.setAttribute('data-copy', cmd);
+      }
+
+      function copyInstallCmd() {
+        var btn = document.getElementById('hero-install-copy');
+        var cmd = btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(cmd).then(function() {
+          var oldText = btn.textContent;
+          btn.textContent = 'copied!';
+          setTimeout(function() { btn.textContent = oldText; }, 1500);
+        });
+      }
+    </script>
+  </section>
+
+  <!-- Interactive CLI Showcase -->
+  <section class="features-section" id="showcase" style="margin-top: 3.5rem;">
+    <h2 class="section-title">Commands in action</h2>
+
+    <div class="showcase-box">
+      <div class="showcase-tabs">
+        <button class="showcase-tab is-active" onclick="switchShowcaseTab('sc-install', this)">$ lown install gh:user/repo</button>
+        <button class="showcase-tab" onclick="switchShowcaseTab('sc-list', this)">$ lown list --json</button>
+        <button class="showcase-tab" onclick="switchShowcaseTab('sc-doctor', this)">$ lown doctor --json</button>
+        <button class="showcase-tab" onclick="switchShowcaseTab('sc-rollback', this)">$ lown rollback &lt;name&gt;</button>
+      </div>
+      <div class="showcase-body">
+        <div id="sc-install" class="showcase-content is-active">
+          <pre><span style="color: #4ade80;">[info] Cloning gh:iamvxrn/trigg into ~/.lown/apps/trigg...</span>
+<span style="color: #4a7bc0;">[build] Detecting build environment... (Go module detected)</span>
+[build] Compiling binary 'trigg' via 'go build -o ~/.lown/bin/trigg main.go'
+<span style="color: #4ade80;">[ok] Successfully linked executable to ~/.lown/bin/trigg</span></pre>
+        </div>
+        <div id="sc-list" class="showcase-content">
+          <pre>[
+  {
+    "name": "trigg",
+    "version": "0.3.0",
+    "commit": "7f5f822",
+    "executable": "~/.lown/bin/trigg"
+  },
+  {
+    "name": "muth",
+    "version": "0.3.0",
+    "commit": "1549d31",
+    "executable": "~/.lown/bin/muth"
+  }
+]</pre>
+        </div>
+        <div id="sc-doctor" class="showcase-content">
+          <pre>{
+  "lown_version": "v0.3.0",
+  "root_dir": "~/.lown",
+  "bin_dir": "~/.lown/bin",
+  "in_path": true,
+  "status": "healthy"
+}</pre>
+        </div>
+        <div id="sc-rollback" class="showcase-content">
+          <pre><span style="color: #4a7bc0;">[info] Searching for previous backup binary 'trigg.bak'...</span>
+<span style="color: #4ade80;">[ok] Restored previous binary (trigg.bak -> trigg)</span>
+[ok] Rollback complete.</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section: Asymmetric Spotlight Grid -->
+  <section class="features-section">
+    <h2 class="section-title">Built for clean, rootless binary management</h2>
+    
+    <div class="spotlight-grid">
+      <div class="spotlight-card main-spotlight">
+        <h3 class="spotlight-card__title">100% Rootless Sandbox</h3>
+        <p class="spotlight-card__body">
+          Never prompts for <code>sudo</code>. Cloned repositories, compiled binaries, and backups strictly reside in <code>~/.lown/</code>.
+        </p>
+      </div>
+
+      <div class="spotlight-stack">
+        <div class="spotlight-card">
+          <h3 class="spotlight-card__title">Git as the Registry</h3>
+          <p class="spotlight-card__body">
+            Pass any Git repository short spec like <code>gh:user/repo</code> or full URL to compile directly from source.
+          </p>
+        </div>
+        <div class="spotlight-card">
+          <h3 class="spotlight-card__title">Instant Rollbacks</h3>
+          <p class="spotlight-card__body">
+            Automatically preserves previous builds as <code>.bak</code> binaries before updates so you can revert anytime.
+          </p>
+        </div>
+        <div class="spotlight-card">
+          <h3 class="spotlight-card__title">Agent-Native JSON API</h3>
+          <p class="spotlight-card__body">
+            Provides machine-readable <code>--json</code> flags for AI coding assistants and automation scripts.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expanded Comparison Section -->
+  <section class="comparison-section" id="comparison">
+    <h2 class="section-title">How Lown compares to traditional package managers</h2>
+
+    <div class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Lown</th>
+            <th>Homebrew</th>
+            <th>Cargo Install</th>
+            <th>Nix / Devbox</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rootless / Zero `sudo` Required</td>
+            <td><span class="badge-yes">✓ 100% User-Space (~/.lown/)</span></td>
+            <td><span class="badge-no">✗ System permissions</span></td>
+            <td><span class="badge-yes">✓ User-Space (~/.cargo/)</span></td>
+            <td><span class="badge-yes">✓ Nix store / user-space</span></td>
+          </tr>
+          <tr>
+            <td>Decentralized Git Sources</td>
+            <td><span class="badge-yes">✓ Direct gh:user/repo</span></td>
+            <td><span class="badge-no">✗ Central Homebrew Taps</span></td>
+            <td><span class="badge-no">✗ crates.io Registry</span></td>
+            <td><span class="badge-no">✗ Nixpkgs attribute set</span></td>
+          </tr>
+          <tr>
+            <td>Instant Binary Rollbacks</td>
+            <td><span class="badge-yes">✓ lown rollback</span></td>
+            <td><span class="badge-no">✗ Complex formula pinning</span></td>
+            <td><span class="badge-no">✗ Recompile required</span></td>
+            <td><span class="badge-yes">✓ Generation rollback</span></td>
+          </tr>
+          <tr>
+            <td>Shell Completion Generator</td>
+            <td><span class="badge-yes">✓ lown completion</span></td>
+            <td><span class="badge-yes">✓ Formula completions</span></td>
+            <td><span class="badge-no">✗ No built-in generator</span></td>
+            <td><span class="badge-yes">✓ Shell hooks</span></td>
+          </tr>
+          <tr>
+            <td>Agent-Native Machine Output</td>
+            <td><span class="badge-yes">✓ Native --json</span></td>
+            <td>Partial</td>
+            <td><span class="badge-no">✗ Text output only</span></td>
+            <td><span class="badge-yes">✓ JSON evaluation</span></td>
+          </tr>
+          <tr>
+            <td>Smart Build Auto-Detection</td>
+            <td><span class="badge-yes">✓ Go, Rust & Revoq (C/C++)</span></td>
+            <td><span class="badge-no">✗ Precompiled Bottlenecks</span></td>
+            <td><span class="badge-no">✗ Rust crates only</span></td>
+            <td><span class="badge-yes">✓ Nix expressions</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  function switchShowcaseTab(contentId, btn) {
+    document.querySelectorAll('.showcase-tab').forEach(function(t) { t.classList.remove('is-active'); });
+    document.querySelectorAll('.showcase-content').forEach(function(c) { c.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    var target = document.getElementById(contentId);
+    if (target) target.classList.add('is-active');
+  }
+</script>
+
+{{ end }}
