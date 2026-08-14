@@ -1,175 +1,162 @@
 {{ define "main" }}
 
 <div class="landing">
-  <!-- Original Hero Section -->
-  <section class="hero">
-    <span class="hero__eyebrow">lown {{ .Site.Params.version | default "v0.3.0" }} — user-space binary manager</span>
-    <h1 class="hero__title">
-      Automated user-space <br>
-      <span class="hero__title-highlight">package compilation & deployment</span>
-    </h1>
-    <p class="hero__sub">
-      Lown clones Git repositories into <code>~/.lown/apps/</code>, executes native Go or Rust builds, and links binaries to <code>~/.lown/bin/</code>. Zero sudo required.
-    </p>
-
-    <div class="terminal-box">
-      <div class="terminal-header">
-        <div class="terminal-dots">
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-        </div>
-        <div class="terminal-tabs">
-          <button class="terminal-tab is-active" id="tab-curl" onclick="switchInstallTab('curl')">curl | sh</button>
-          <button class="terminal-tab" id="tab-go" onclick="switchInstallTab('go')">go</button>
-        </div>
+  <!-- Dev Hero Section -->
+  <section class="dev-hero">
+    <div class="dev-hero__info">
+      <div class="dev-hero__meta-strip">
+        <span class="meta-chip">lown {{ .Site.Params.version | default "v0.3.2" }}</span>
+        <span class="meta-chip meta-chip--subtle">100% User-Space</span>
+        <span class="meta-chip meta-chip--subtle">Zero Sudo</span>
       </div>
-      <div class="terminal-body">
-        <div class="terminal-cmd">
-          <span class="terminal-prompt">$</span><span id="hero-install-cmd">curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh</span>
+      <h1 class="dev-hero__title">
+        Rootless package compilation & <br>
+        <span class="dev-hero__title-highlight">decentralized binary management</span>
+      </h1>
+      <p class="dev-hero__desc">
+        Lown clones Git repositories from GitHub, GitLab, Codeberg, or Sourcehut into <code>~/.lown/apps/</code>, auto-detects Go, Rust, or C toolchains, compiles source code, and links executables directly to <code>~/.lown/bin/</code>.
+      </p>
+
+      <div class="install-card">
+        <div class="install-card__header">
+          <div class="install-card__tabs">
+            <button class="install-tab is-active" id="tab-curl" onclick="switchInstallTab('curl')">curl | sh</button>
+            <button class="install-tab" id="tab-npx" onclick="switchInstallTab('npx')">npx</button>
+            <button class="install-tab" id="tab-go" onclick="switchInstallTab('go')">go</button>
+          </div>
         </div>
-        <button
-          class="copy-btn"
-          id="hero-install-copy"
-          data-copy="curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh"
-          onclick="copyInstallCmd()"
-        >
-          copy
-        </button>
+        <div class="install-card__body">
+          <div class="install-card__cmd">
+            <span class="install-card__prompt">$</span><span id="hero-install-cmd">curl -fsSL https://lown.pages.dev/install.sh | sh</span>
+          </div>
+          <button
+            class="copy-btn"
+            id="hero-install-copy"
+            data-copy="curl -fsSL https://lown.pages.dev/install.sh | sh"
+            onclick="copyInstallCmd()"
+          >
+            copy
+          </button>
+        </div>
       </div>
     </div>
 
-    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-      <a href="/docs/" class="hero-footer-link">Documentation & Spec →</a>
-      <a href="#showcase" class="hero-footer-link" style="color: var(--subtle);">Interactive Terminal ↓</a>
-      <a href="#comparison" class="hero-footer-link" style="color: var(--subtle);">Feature Matrix ↓</a>
-    </div>
-
-    <script>
-      var installCmds = {
-        curl: "curl -fsSL https://raw.githubusercontent.com/iamvxrn/lown/main/install.sh | sh",
-        go: "go install github.com/iamvxrn/lown@latest"
-      };
-
-      function switchInstallTab(tabKey) {
-        document.querySelectorAll('.terminal-tab').forEach(function(b) { b.classList.remove('is-active'); });
-        var tabBtn = document.getElementById('tab-' + tabKey);
-        if (tabBtn) tabBtn.classList.add('is-active');
-        var cmd = installCmds[tabKey] || installCmds.curl;
-        var span = document.getElementById('hero-install-cmd');
-        var btn = document.getElementById('hero-install-copy');
-        if (span) span.textContent = cmd;
-        if (btn) btn.setAttribute('data-copy', cmd);
-      }
-
-      function copyInstallCmd() {
-        var btn = document.getElementById('hero-install-copy');
-        var cmd = btn.getAttribute('data-copy');
-        navigator.clipboard.writeText(cmd).then(function() {
-          var oldText = btn.textContent;
-          btn.textContent = 'copied!';
-          setTimeout(function() { btn.textContent = oldText; }, 1500);
-        });
-      }
-    </script>
-  </section>
-
-  <!-- Interactive CLI Showcase -->
-  <section class="features-section" id="showcase" style="margin-top: 3.5rem;">
-    <h2 class="section-title">Commands in action</h2>
-
-    <div class="showcase-box">
-      <div class="showcase-tabs">
-        <button class="showcase-tab is-active" onclick="switchShowcaseTab('sc-install', this)">$ lown install gh:user/repo</button>
-        <button class="showcase-tab" onclick="switchShowcaseTab('sc-list', this)">$ lown list --json</button>
-        <button class="showcase-tab" onclick="switchShowcaseTab('sc-doctor', this)">$ lown doctor --json</button>
-        <button class="showcase-tab" onclick="switchShowcaseTab('sc-rollback', this)">$ lown rollback &lt;name&gt;</button>
+    <!-- Interactive CLI Sandbox -->
+    <div class="cli-sandbox">
+      <div class="cli-sandbox__bar">
+        <span class="cli-sandbox__title">⚡ Live CLI Engine Output</span>
       </div>
-      <div class="showcase-body">
-        <div id="sc-install" class="showcase-content is-active">
-          <pre><span style="color: #4ade80;">[info] Cloning gh:iamvxrn/trigg into ~/.lown/apps/trigg...</span>
-<span style="color: #4a7bc0;">[build] Detecting build environment... (Go module detected)</span>
-[build] Compiling binary 'trigg' via 'go build -o ~/.lown/bin/trigg main.go'
-<span style="color: #4ade80;">[ok] Successfully linked executable to ~/.lown/bin/trigg</span></pre>
+      <div class="cli-sandbox__tabs">
+        <button class="cli-tab is-active" onclick="switchCliPanel('cli-install', this)">$ lown install gh:iamvxrn/trigg</button>
+        <button class="cli-tab" onclick="switchCliPanel('cli-list', this)">$ lown list --json</button>
+        <button class="cli-tab" onclick="switchCliPanel('cli-doctor', this)">$ lown doctor --json</button>
+        <button class="cli-tab" onclick="switchCliPanel('cli-rollback', this)">$ lown rollback trigg</button>
+      </div>
+      <div class="cli-sandbox__content">
+        <div id="cli-install" class="cli-panel is-active">
+          <pre><span style="color: #4ade80;">[info] Resolving gh:iamvxrn/trigg ...</span>
+<span style="color: #4a7bc0;">[git] Cloning https://github.com/iamvxrn/trigg.git -> ~/.lown/apps/trigg</span>
+[build] Auto-detected build driver: Go Module (go.mod)
+[build] Compiling executable via 'go build -o ~/.lown/bin/trigg main.go'
+<span style="color: #4ade80;">[ok] Linked binary -> ~/.lown/bin/trigg</span></pre>
         </div>
-        <div id="sc-list" class="showcase-content">
+        <div id="cli-list" class="cli-panel">
           <pre>[
   {
     "name": "trigg",
-    "version": "0.3.0",
-    "commit": "7f5f822",
-    "executable": "~/.lown/bin/trigg"
+    "version": "0.3.2",
+    "commit": "8f3a91b",
+    "path": "~/.lown/bin/trigg"
   },
   {
     "name": "muth",
-    "version": "0.3.0",
-    "commit": "1549d31",
-    "executable": "~/.lown/bin/muth"
+    "version": "0.3.2",
+    "commit": "4e1c20d",
+    "path": "~/.lown/bin/muth"
   }
 ]</pre>
         </div>
-        <div id="sc-doctor" class="showcase-content">
+        <div id="cli-doctor" class="cli-panel">
           <pre>{
-  "lown_version": "v0.3.0",
+  "lown_version": "v0.3.2",
   "root_dir": "~/.lown",
   "bin_dir": "~/.lown/bin",
   "in_path": true,
   "status": "healthy"
 }</pre>
         </div>
-        <div id="sc-rollback" class="showcase-content">
-          <pre><span style="color: #4a7bc0;">[info] Searching for previous backup binary 'trigg.bak'...</span>
-<span style="color: #4ade80;">[ok] Restored previous binary (trigg.bak -> trigg)</span>
-[ok] Rollback complete.</pre>
+        <div id="cli-rollback" class="cli-panel">
+          <pre><span style="color: #4a7bc0;">[info] Locating previous binary snapshot 'trigg.bak'...</span>
+<span style="color: #4ade80;">[ok] Restored executable (~/.lown/bin/trigg.bak -> ~/.lown/bin/trigg)</span>
+[ok] Rollback completed in 4ms.</pre>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features Section: Asymmetric Spotlight Grid -->
-  <section class="features-section">
-    <h2 class="section-title">Built for clean, rootless binary management</h2>
-    
-    <div class="spotlight-grid">
-      <div class="spotlight-card main-spotlight">
-        <h3 class="spotlight-card__title">100% Rootless Sandbox</h3>
-        <p class="spotlight-card__body">
-          Never prompts for <code>sudo</code>. Cloned repositories, compiled binaries, and backups strictly reside in <code>~/.lown/</code>.
-        </p>
-      </div>
+  <!-- Architecture Flow Section -->
+  <section class="arch-section">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-heading">How Lown orchestrates user-space toolchains</h2>
 
-      <div class="spotlight-stack">
-        <div class="spotlight-card">
-          <h3 class="spotlight-card__title">Git as the Registry</h3>
-          <p class="spotlight-card__body">
-            Pass any Git repository short spec like <code>gh:user/repo</code> or full URL to compile directly from source.
-          </p>
-        </div>
-        <div class="spotlight-card">
-          <h3 class="spotlight-card__title">Instant Rollbacks</h3>
-          <p class="spotlight-card__body">
-            Automatically preserves previous builds as <code>.bak</code> binaries before updates so you can revert anytime.
-          </p>
-        </div>
-        <div class="spotlight-card">
-          <h3 class="spotlight-card__title">Agent-Native JSON API</h3>
-          <p class="spotlight-card__body">
-            Provides machine-readable <code>--json</code> flags for AI coding assistants and automation scripts.
-          </p>
-        </div>
+    <div class="pipeline-grid">
+      <div class="pipeline-node">
+        <div class="pipeline-node__step">STEP 01</div>
+        <div class="pipeline-node__title">Forge Resolution</div>
+        <div class="pipeline-node__desc">Parses specs (<code>gh:</code>, <code>gl:</code>, <code>cb:</code>, <code>sh:</code>) or raw Git HTTPS endpoints to clone into user-space storage.</div>
+      </div>
+      <div class="pipeline-node">
+        <div class="pipeline-node__step">STEP 02</div>
+        <div class="pipeline-node__title">Build Auto-Detection</div>
+        <div class="pipeline-node__desc">Detects Go, Cargo, Revoq, CMake, Makefile, or Autotools configurations dynamically.</div>
+      </div>
+      <div class="pipeline-node">
+        <div class="pipeline-node__step">STEP 03</div>
+        <div class="pipeline-node__title">User-Space Linking</div>
+        <div class="pipeline-node__desc">Compiles binaries directly inside <code>~/.lown/apps/</code> and symlinks into <code>~/.lown/bin/</code> with 0 root privileges.</div>
+      </div>
+      <div class="pipeline-node">
+        <div class="pipeline-node__step">STEP 04</div>
+        <div class="pipeline-node__title">Rollback Snapshots</div>
+        <div class="pipeline-node__desc">Preserves atomic <code>.bak</code> copies prior to updating, ensuring single-command instant restoration.</div>
       </div>
     </div>
   </section>
 
-  <!-- Expanded Comparison Section -->
-  <section class="comparison-section" id="comparison">
-    <h2 class="section-title">How Lown compares to traditional package managers</h2>
+  <!-- Technical Capabilities Grid -->
+  <section class="arch-section" style="margin-top: 4rem;">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-heading">Engineered for clean developer environments</h2>
 
-    <div class="comparison-table-wrapper">
-      <table class="comparison-table">
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card__tag">SECURITY</div>
+        <div class="tech-card__title">100% Rootless Sandbox</div>
+        <div class="tech-card__body">Never prompts for <code>sudo</code> or system write permissions. All operations occur strictly within <code>~/.lown/</code>.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__tag">DECENTRALIZED</div>
+        <div class="tech-card__title">Git as the Registry</div>
+        <div class="tech-card__body">Install directly from any public or private repository using short forge aliases (GitHub, GitLab, Codeberg, Sourcehut).</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card__tag">AUTOMATION</div>
+        <div class="tech-card__title">Agent-Native JSON API</div>
+        <div class="tech-card__body">Every command supports <code>--json</code> flags for seamless integration with AI coding agents, scripts, and CI/CD pipelines.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities Comparison Matrix -->
+  <section class="matrix-section">
+    <div class="section-label">Comparison</div>
+    <h2 class="section-heading">Feature matrix against traditional tool managers</h2>
+
+    <div class="matrix-wrapper">
+      <table class="matrix-table">
         <thead>
           <tr>
-            <th>Feature</th>
+            <th>Technical Specification</th>
             <th>Lown</th>
             <th>Homebrew</th>
             <th>Cargo Install</th>
@@ -178,46 +165,32 @@
         </thead>
         <tbody>
           <tr>
-            <td>Rootless / Zero `sudo` Required</td>
-            <td><span class="badge-yes">✓ 100% User-Space (~/.lown/)</span></td>
-            <td><span class="badge-no">✗ System permissions</span></td>
-            <td><span class="badge-yes">✓ User-Space (~/.cargo/)</span></td>
-            <td><span class="badge-yes">✓ Nix store / user-space</span></td>
+            <td>Rootless / Zero `sudo` Isolation</td>
+            <td><span class="badge-primary">✓ 100% (~/.lown/)</span></td>
+            <td><span class="badge-dim">System directories</span></td>
+            <td><span class="badge-primary">✓ (~/.cargo/)</span></td>
+            <td><span class="badge-primary">✓ User nix store</span></td>
           </tr>
           <tr>
-            <td>Decentralized Git Sources</td>
-            <td><span class="badge-yes">✓ Direct gh:user/repo</span></td>
-            <td><span class="badge-no">✗ Central Homebrew Taps</span></td>
-            <td><span class="badge-no">✗ crates.io Registry</span></td>
-            <td><span class="badge-no">✗ Nixpkgs attribute set</span></td>
+            <td>Decentralized Git Forges</td>
+            <td><span class="badge-primary">✓ gh:, gl:, cb:, sh:</span></td>
+            <td><span class="badge-dim">Centralized taps</span></td>
+            <td><span class="badge-dim">crates.io registry</span></td>
+            <td><span class="badge-dim">Nixpkgs channels</span></td>
           </tr>
           <tr>
-            <td>Instant Binary Rollbacks</td>
-            <td><span class="badge-yes">✓ lown rollback</span></td>
-            <td><span class="badge-no">✗ Complex formula pinning</span></td>
-            <td><span class="badge-no">✗ Recompile required</span></td>
-            <td><span class="badge-yes">✓ Generation rollback</span></td>
+            <td>Atomic Binary Rollbacks</td>
+            <td><span class="badge-primary">✓ lown rollback</span></td>
+            <td><span class="badge-dim">Formula pinning</span></td>
+            <td><span class="badge-dim">Recompile needed</span></td>
+            <td><span class="badge-primary">✓ Generation rollback</span></td>
           </tr>
           <tr>
-            <td>Shell Completion Generator</td>
-            <td><span class="badge-yes">✓ lown completion</span></td>
-            <td><span class="badge-yes">✓ Formula completions</span></td>
-            <td><span class="badge-no">✗ No built-in generator</span></td>
-            <td><span class="badge-yes">✓ Shell hooks</span></td>
-          </tr>
-          <tr>
-            <td>Agent-Native Machine Output</td>
-            <td><span class="badge-yes">✓ Native --json</span></td>
-            <td>Partial</td>
-            <td><span class="badge-no">✗ Text output only</span></td>
-            <td><span class="badge-yes">✓ JSON evaluation</span></td>
-          </tr>
-          <tr>
-            <td>Smart Build Auto-Detection</td>
-            <td><span class="badge-yes">✓ Go, Rust & Revoq (C/C++)</span></td>
-            <td><span class="badge-no">✗ Precompiled Bottlenecks</span></td>
-            <td><span class="badge-no">✗ Rust crates only</span></td>
-            <td><span class="badge-yes">✓ Nix expressions</span></td>
+            <td>Agent-Native `--json` Flags</td>
+            <td><span class="badge-primary">✓ Native JSON Output</span></td>
+            <td><span class="badge-dim">Partial</span></td>
+            <td><span class="badge-dim">Text only</span></td>
+            <td><span class="badge-primary">✓ JSON evaluation</span></td>
           </tr>
         </tbody>
       </table>
@@ -226,11 +199,38 @@
 </div>
 
 <script>
-  function switchShowcaseTab(contentId, btn) {
-    document.querySelectorAll('.showcase-tab').forEach(function(t) { t.classList.remove('is-active'); });
-    document.querySelectorAll('.showcase-content').forEach(function(c) { c.classList.remove('is-active'); });
+  var installCmds = {
+    curl: "curl -fsSL https://lown.pages.dev/install.sh | sh",
+    npx: "npx @iamvxrn/lown",
+    go: "go install github.com/iamvxrn/lown@latest"
+  };
+
+  function switchInstallTab(tabKey) {
+    document.querySelectorAll('.install-tab').forEach(function(b) { b.classList.remove('is-active'); });
+    var tabBtn = document.getElementById('tab-' + tabKey);
+    if (tabBtn) tabBtn.classList.add('is-active');
+    var cmd = installCmds[tabKey] || installCmds.curl;
+    var span = document.getElementById('hero-install-cmd');
+    var btn = document.getElementById('hero-install-copy');
+    if (span) span.textContent = cmd;
+    if (btn) btn.setAttribute('data-copy', cmd);
+  }
+
+  function copyInstallCmd() {
+    var btn = document.getElementById('hero-install-copy');
+    var cmd = btn.getAttribute('data-copy');
+    navigator.clipboard.writeText(cmd).then(function() {
+      var oldText = btn.textContent;
+      btn.textContent = 'copied!';
+      setTimeout(function() { btn.textContent = oldText; }, 1500);
+    });
+  }
+
+  function switchCliPanel(panelId, btn) {
+    document.querySelectorAll('.cli-tab').forEach(function(t) { t.classList.remove('is-active'); });
+    document.querySelectorAll('.cli-panel').forEach(function(c) { c.classList.remove('is-active'); });
     btn.classList.add('is-active');
-    var target = document.getElementById(contentId);
+    var target = document.getElementById(panelId);
     if (target) target.classList.add('is-active');
   }
 </script>
